@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  name        String
+  password    String
+  motivation  String
+  joinDate    String
+  role        Role         // 'admin' atau 'santri'
+  habits      HabitStatus[] // Relasi ke HabitStatus untuk mencatat status kebiasaan per user per bulan
+  warnings    Warning[]
+  murajaah    Murajaah[]
+  ziyadah     Ziyadah[]
+  tilawah     Tilawah[]
+  notifications Notification[]
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  SANTRI
+}
+
+
+model Month {
+  id          Int          @id @default(autoincrement())
+  name        String        // Nama bulan (misal: Januari)
+  year        Int           // Tahun (misal: 2024)
+  habitStatuses HabitStatus[] // Hubungkan ke HabitStatus
+  murajaah    Murajaah[]
+  ziyadah     Ziyadah[]
+  tilawah     Tilawah[]
+}
+
+model Habit {
+  id          Int          @id @default(autoincrement())
+  title       String        // Nama dari habit yang akan dilakukan oleh user
+  habitStatuses HabitStatus[] // Relasi ke HabitStatus untuk melacak status kebiasaan
+}
+
+model HabitStatus {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  habitId     Int
+  habit       Habit         @relation(fields: [habitId], references: [id])
+  monthId     Int
+  month       Month         @relation(fields: [monthId], references: [id])
+  status      Boolean       // True jika habit tercheklis, False jika tidak
+  comments    String?       // Alasan kenapa tidak bisa dilakukan (optional)
+}
+
+
+model Murajaah {
+  id          Int          @id @default(autoincrement())
+  surah       String        // Nama surah yang dihafal atau dibaca
+  lembar      Int           // Jumlah lembar yang dihafal
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  monthId     Int
+  month       Month         @relation(fields: [monthId], references: [id])
+}
+
+model Ziyadah {
+  id          Int          @id @default(autoincrement())
+  surah       String        // Nama surah yang ditambah hafalannya
+  lembar      Int           // Jumlah lembar tambahan
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  monthId     Int
+  month       Month         @relation(fields: [monthId], references: [id])
+}
+
+model Tilawah {
+  id          Int          @id @default(autoincrement())
+  surah       String        // Nama surah yang dibaca
+  lembar      Int           // Jumlah lembar yang dibaca
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  monthId     Int
+  month       Month         @relation(fields: [monthId], references: [id])
+}
+
+model Warning {
+  id          Int          @id @default(autoincrement())
+  message     String        // Pesan peringatan
+  type        String        // Jenis peringatan: 'green', 'yellow', 'red'
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          Int          @id @default(autoincrement())
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  message     String        // Pesan notifikasi
+  status      Boolean       // true = dibaca, false = belum dibaca
+}
