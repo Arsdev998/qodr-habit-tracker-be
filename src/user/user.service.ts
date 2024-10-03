@@ -28,7 +28,7 @@ export class UserService {
         })
     }
 
- async getAllUsers(skip: number = 0, take: number = 10): Promise<User[]> {
+    async getAllUsers(skip: number = 0, take: number = 10): Promise<User[]> {
     return this.prisma.user.findMany({
         orderBy: {
             name: 'asc'
@@ -36,7 +36,7 @@ export class UserService {
         skip: skip,
         take: take
     });
-}
+    }
 }
 
 

@@ -5,9 +5,10 @@ import { HabitModule } from './habit/habit.module';
 import { PrismaModule } from './prisma_config/prisma.module';
 import { SocketModule } from './socket/socket.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PrismaModule,UserModule,HabitModule,SocketModule],
+  imports: [PrismaModule,AuthModule,UserModule,HabitModule,SocketModule],
   controllers: [AppController],
   providers: [AppService],
 })
