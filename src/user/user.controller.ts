@@ -1,4 +1,4 @@
-import { Controller,Get,Post,Body } from "@nestjs/common";
+import { Controller,Get,Post,Body, Param } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Role } from "@prisma/client";
 
@@ -14,5 +14,15 @@ export class UserController {
     @Post('create')
     async crateUser(@Body() data:{username:string; password:string, joinDate: string ,role: Role}) {
         return this.userService.createUser(data);
+    }
+ 
+    @Get('get/:username')
+    async getUserByUsername(@Param('username') username: string) {
+        return this.userService.getUserByUsername(username);
+    }
+
+    @Get('getById/:id')
+    async getUserById(@Param('id') id: string) {
+        return this.userService.getUserById(id);
     }
 }

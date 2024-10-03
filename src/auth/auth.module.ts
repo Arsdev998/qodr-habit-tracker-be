@@ -4,9 +4,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
+import { LocalStrategy } from './local.strategy';
+import { UserService } from 'src/user/user.service';
+import { JwtStrategy } from './jwt.strategy';
+import { PrismaModule } from 'src/prisma_config/prisma.module';
 
 @Module({
   imports: [
+    PrismaModule,
     UserModule, // Import user module untuk user management
     PassportModule,
     JwtModule.register({
@@ -14,7 +19,7 @@ import { AuthController } from './auth.controller';
       signOptions: { expiresIn: '60m' }, // Token kedaluwarsa dalam 60 menit
     }),
   ],
-  providers: [AuthService],
+  providers: [AuthService,LocalStrategy,UserService,JwtStrategy],
   controllers:[AuthController],
   exports: [AuthService],
 })

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma_config/prisma.service";
 import { Role, User } from "@prisma/client";
 import * as bcrypt from 'bcrypt'
@@ -7,17 +7,35 @@ import * as bcrypt from 'bcrypt'
 export class UserService {
     constructor(private prisma: PrismaService) {}
 
-    async getUserByUsername(userId: string): Promise<User | null> {
-        return this.prisma.user.findFirst({
+    async getUserByUsername(name: string): Promise<User | null> {
+        const user = await this.prisma.user.findFirst({
             where: {
-                name: userId
+                name: name
             }
         })
+
+        if(!user) {
+            throw new NotFoundException('User not found')
+        }
+        return user
+    }
+
+    async getUserById(userId: string): Promise<User | null> {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: parseInt(userId)
+            }
+        })
+
+        if(!user) {
+            throw new NotFoundException('User not found')
+        }
+        return user
     }
 
     async createUser(data: {username:string; password:string, joinDate: string ,role: Role}): Promise<User>{
         const hashedPassword = await bcrypt.hash(data.password, 10);
-        return this.prisma.user.create({
+        const user = await this.prisma.user.create({
             data:{
                 name: data.username,
                 password: hashedPassword,
@@ -26,16 +44,23 @@ export class UserService {
                 motivation: " ",
             }
         })
+
+        return user
     }
 
     async getAllUsers(skip: number = 0, take: number = 10): Promise<User[]> {
-    return this.prisma.user.findMany({
+    const user  = await  this.prisma.user.findMany({
         orderBy: {
             name: 'asc'
         },
         skip: skip,
         take: take
     });
+
+    if(!user) {
+        throw new Error('User not found')
+    }
+    return user
     }
 }
 
