@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, } from "@nestjs/common";
 import { PrismaService } from "src/prisma_config/prisma.service";
 import { Role, User } from "@prisma/client";
 import * as bcrypt from 'bcrypt'
@@ -13,7 +13,7 @@ export class UserService {
                 name: name
             }
         })
-
+        console.log("user result",user);
         if(!user) {
             throw new NotFoundException('User not found')
         }
@@ -35,6 +35,14 @@ export class UserService {
 
     async createUser(data: {username:string; password:string, joinDate: string ,role: Role}): Promise<User>{
         const hashedPassword = await bcrypt.hash(data.password, 10);
+        const checkUser = await this.prisma.user.findFirst({
+            where: {
+                name:data.username
+            }
+        });
+        if(checkUser) {
+             throw new Error('User already exists')
+        }
         const user = await this.prisma.user.create({
             data:{
                 name: data.username,
