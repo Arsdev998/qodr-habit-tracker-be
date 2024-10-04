@@ -1,11 +1,16 @@
-import { Controller,Get,Post,Body, Param } from "@nestjs/common";
+import { Controller,Get,Post,Body, Param, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
-import { Role } from "@prisma/client";
+import { Role } from "../auth/auth.types";
+import { AuthGuard } from "@nestjs/passport";
+import { RolesGuard } from "src/auth/guards/roles.guard";
+import { Roles } from "src/auth/guards/roles.decorator";
 
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
-
+    
+    @UseGuards(RolesGuard)
+    @Roles(Role.SANTRI,Role.ADMIN)
     @Get('get')
     async getAllUsers() {
         return this.userService.getAllUsers();

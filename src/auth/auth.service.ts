@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from "./dto/login.dto";
+import { User } from "@prisma/client";
 
 
 @Injectable()
@@ -12,18 +13,31 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  async validateToken(token: string): Promise<User> {
+    try {
+      const decoded = this.jwtService.verify(token); // Verifikasi token
+      const user = await this.userService.getUserById(decoded.sub); // Mendapatkan user berdasarkan id dari payload token
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return user; // Mengembalikan user jika valid
+    } catch (error) {
+      console.error('Token validation error:', error);
+      throw new UnauthorizedException('Invalid token'); // Mengembalikan UnauthorizedException jika token tidak valid
+    }
+  }
+
   async validateUser(name: string, password: string): Promise<any> {
     const user = await this.userService.getUserByUsername(name);
     if (!user) {
-      console.log('User not found');
-      return null;
+      throw new NotFoundException('User not found');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      console.log('Invalid password');
-      return null;
+      throw new UnauthorizedException('Invalid password');
     }
-    console.log('User and password are valid:', user);
     return user;
   }
 

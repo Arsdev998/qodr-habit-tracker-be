@@ -2,15 +2,16 @@ import {
   Controller,
   Post,
   Body,
-  Request,
+  // Request,
   UseGuards,
   Res,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard'; // Local guard untuk strategi login
-import { JwtAuthGuard } from './jwt.auth.guard'; // JWT guard untuk melindungi route
+import { LocalAuthGuard } from './guards/local-auth.guard'; // Local guard untuk strategi login
+import { JwtAuthGuard } from './guards/jwt.auth.guard'; // JWT guard untuk melindungi route
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 
@@ -25,7 +26,6 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    console.log('Login route accessed'); // Log apakah route ini terpanggil
     const { access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
       httpOnly: process.env.PRODUCTION === 'production',
@@ -34,11 +34,23 @@ export class AuthController {
     });
     return { message: 'Login successfully' };
   }
-
-  // profile
-  @UseGuards(JwtAuthGuard) // Gunakan JWT guard untuk melindungi route
-  @Post('profile')
-  getProfile(@Request() req) {
-    return req.user;
+   
+  // logout
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    response.cookie('jwt','',{
+      httpOnly: process.env.PRODUCTION === 'production',
+      expires: new Date(0),
+      secure: true,
+    })
+    return { message: 'Logout successfully' };
   }
+
+  // // profile
+  // @UseGuards(JwtAuthGuard) // Gunakan JWT guard untuk melindungi route
+  // @Post('profile')
+  // // getProfile(@Request() req) {
+  // //   return req.user;
+  // // }
 }
