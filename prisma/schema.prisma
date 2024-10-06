@@ -34,9 +34,18 @@ model Month {
   name        String        // Nama bulan (misal: Januari)
   year        Int           // Tahun (misal: 2024)
   habitStatuses HabitStatus[] // Hubungkan ke HabitStatus
+  days        Day[]
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
+}
+
+model Day{
+  id         Int  @id @default(autoincrement())
+  date       Int
+  monthId    Int
+  month      Month  @relation(fields: [monthId],references: [id])
+  habitStatuses HabitStatus[]
 }
 
 model Habit {
@@ -53,6 +62,8 @@ model HabitStatus {
   habit       Habit         @relation(fields: [habitId], references: [id])
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
+  dayId       Int
+  day         Day          @relation(fields: [dayId], references: [id])
   status      Boolean       // True jika habit tercheklis, False jika tidak
   comments    String?       // Alasan kenapa tidak bisa dilakukan (optional)
 }

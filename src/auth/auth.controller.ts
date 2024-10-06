@@ -47,10 +47,4 @@ export class AuthController {
     return { message: 'Logout successfully' };
   }
 
-  // // profile
-  // @UseGuards(JwtAuthGuard) // Gunakan JWT guard untuk melindungi route
-  // @Post('profile')
-  // // getProfile(@Request() req) {
-  // //   return req.user;
-  // // }
 }

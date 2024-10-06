@@ -8,6 +8,8 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { UserService } from 'src/user/user.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from 'src/prisma_config/prisma.module';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
@@ -19,8 +21,14 @@ import { PrismaModule } from 'src/prisma_config/prisma.module';
       signOptions: { expiresIn: '60m' }, // Token kedaluwarsa dalam 60 menit
     }),
   ],
-  providers: [AuthService,LocalStrategy,UserService,JwtStrategy],
-  controllers:[AuthController],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtAuthGuard,
+    UserService,
+  ],
+  controllers: [AuthController],
+  exports: [AuthService, JwtAuthGuard],
 })
 export class AuthModule {}

@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HabitModule } from './habit/habit.module';
+import { HabitModule } from './habits/habit/habit.module';
 import { PrismaModule } from './prisma_config/prisma.module';
 import { SocketModule } from './socket/socket.module';
 import { UserModule } from './user/user.module';
@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { AuthMiddleware } from './auth/middleware/auth.middleware';
+import { MonthModule } from './habits/month/month.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthMiddleware } from './auth/middleware/auth.middleware';
     AuthModule,
     UserModule,
     HabitModule,
+    MonthModule,
     SocketModule,
   ],
   controllers: [AppController],

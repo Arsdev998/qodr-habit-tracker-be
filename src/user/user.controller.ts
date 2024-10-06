@@ -4,13 +4,14 @@ import { Role } from "../auth/auth.types";
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/auth/guards/roles.guard";
 import { Roles } from "src/auth/guards/roles.decorator";
+import { JwtAuthGuard } from "src/auth/guards/jwt.auth.guard";
 
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
     
-    @UseGuards(RolesGuard)
-    @Roles(Role.SANTRI,Role.ADMIN)
+    @UseGuards(JwtAuthGuard)
+    // @Roles(Role.SANTRI,Role.ADMIN)
     @Get('get')
     async getAllUsers() {
         return this.userService.getAllUsers();

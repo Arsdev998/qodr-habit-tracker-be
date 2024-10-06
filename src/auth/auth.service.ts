@@ -17,14 +17,11 @@ export class AuthService {
     try {
       const decoded = this.jwtService.verify(token); // Verifikasi token
       const user = await this.userService.getUserById(decoded.sub); // Mendapatkan user berdasarkan id dari payload token
-
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
-
       return user; // Mengembalikan user jika valid
     } catch (error) {
-      console.error('Token validation error:', error);
       throw new UnauthorizedException('Invalid token'); // Mengembalikan UnauthorizedException jika token tidak valid
     }
   }
