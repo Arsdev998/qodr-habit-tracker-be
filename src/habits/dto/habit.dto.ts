@@ -1,4 +1,10 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateHabitDto {
   @IsNotEmpty()
@@ -11,7 +17,6 @@ export class UpdateHabitDto {
   @IsString()
   title?: string; // Nama habit yang akan diupdate, bisa opsional
 }
-
 
 export class CreateHabitStatusDto {
   @IsNotEmpty()
@@ -37,4 +42,10 @@ export class CreateHabitStatusDto {
   @IsOptional()
   @IsString()
   comments?: string; // Alasan jika tidak tercentang (opsional)
+}
+
+export class UpdateHabitStatusDto {
+  dayId: number; // ID hari yang ingin di-update
+  habitId: number; // ID habit yang akan di-update
+  status: boolean; // Status true/false
 }

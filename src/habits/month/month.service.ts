@@ -121,8 +121,14 @@ export class MonthService {
       },
       include: {
         days: {
+          orderBy: {
+            id: 'asc',
+          },
           include: {
             habitStatuses: {
+              orderBy: {
+                id: 'asc',
+              },
               where: {
                 userId: parseInt(userId), // Filter by user to get their specific habit status
               },

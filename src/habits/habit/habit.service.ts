@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
-import { CreateHabitDto, UpdateHabitDto } from '../dto/habit.dto';
+import { CreateHabitDto, UpdateHabitDto, UpdateHabitStatusDto } from '../dto/habit.dto';
 
 @Injectable()
 export class HabitService {
@@ -16,10 +16,8 @@ export class HabitService {
       data: habitData,
     });
   }
-
   //   update habits
   async updateHabit(id: string, habitData: UpdateHabitDto) {
-    const habitId = parseInt(id);
     const exists = await this.prisma.habit.findUnique({
       where: {
         id: parseInt(id),
@@ -48,5 +46,20 @@ export class HabitService {
         habit: true,
       },
     });
+  }
+  // habit status
+  async updateHabitStatus (userId:number, updateHabitStatusDto: UpdateHabitStatusDto) {
+    const {dayId,habitId,status} = updateHabitStatusDto; 
+    const updtateStatus = await this.prisma.habitStatus.updateMany({
+      where:{
+        dayId:dayId,
+        habitId:habitId,
+        userId:userId
+      },
+      data:{
+        status:status
+      }
+    })
+    return {message:"status updated"}
   }
 }
