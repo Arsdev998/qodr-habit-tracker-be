@@ -8,6 +8,10 @@ export class CreateMonthDto {
   @IsNotEmpty()
   @IsInt()
   year: number; // Tahun
+
+  @IsNotEmpty()
+  @IsOptional()
+  days: number; // Daftar hari dalam bulan
 }
 
 export class UpdateMonthDto {

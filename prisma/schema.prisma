@@ -32,7 +32,8 @@ enum Role {
 model Month {
   id          Int          @id @default(autoincrement())
   name        String        // Nama bulan (misal: Januari)
-  year        Int           // Tahun (misal: 2024)
+  year        Int           
+  // Tahun (misal: 2024)
   habitStatuses HabitStatus[] // Hubungkan ke HabitStatus
   days        Day[]
   murajaah    Murajaah[]
@@ -55,18 +56,19 @@ model Habit {
 }
 
 model HabitStatus {
-  id          Int          @id @default(autoincrement())
-  userId      Int
-  user        User          @relation(fields: [userId], references: [id])
-  habitId     Int
-  habit       Habit         @relation(fields: [habitId], references: [id])
-  monthId     Int
-  month       Month         @relation(fields: [monthId], references: [id])
-  dayId       Int
-  day         Day          @relation(fields: [dayId], references: [id])
-  status      Boolean       // True jika habit tercheklis, False jika tidak
-  comments    String?       // Alasan kenapa tidak bisa dilakukan (optional)
+  id          Int      @id @default(autoincrement())
+  userId      Int      // Mengacu pada user yang mengisi status habit
+  user        User     @relation(fields: [userId], references: [id])
+  habitId     Int      // Mengacu pada habit yang dilakukan
+  habit       Habit    @relation(fields: [habitId], references: [id])
+  monthId     Int      // Mengacu pada bulan
+  month       Month    @relation(fields: [monthId], references: [id])
+  dayId       Int      // Mengacu pada hari di bulan tertentu
+  day         Day      @relation(fields: [dayId], references: [id])
+  status      Boolean  // Status True jika habit dilakukan, False jika tidak
+  comments    String?  // Alasan tidak dilakukan (optional)
 }
+
 
 
 model Murajaah {

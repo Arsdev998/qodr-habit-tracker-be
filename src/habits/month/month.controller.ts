@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
 import { MonthService } from './month.service';
-import { CreateMonthDto,UpdateMonthDto } from '../dto/month.dto';
+import { CreateMonthDto, UpdateMonthDto } from '../dto/month.dto';
 
 @Controller('months')
 export class MonthController {
@@ -11,7 +11,13 @@ export class MonthController {
     return this.monthService.getAllMonths(); // Mengambil semua bulan
   }
 
-  @Post("create")
+  // gethabit by id
+  @Get(':id')
+  async getMonthById(@Param('id') id: string) {
+    return this.monthService.getMonthById(id); // Mengambil bulan berdasarkan ID
+  }
+
+  @Post('create')
   async createMonth(@Body() createMonthDto: CreateMonthDto) {
     return this.monthService.createMonth(createMonthDto); // Menambahkan bulan baru
   }
@@ -27,5 +33,13 @@ export class MonthController {
   @Get(':id/habits')
   async getHabitsForMonth(@Param('id') monthId: number) {
     return this.monthService.getHabitsForMonth(monthId); // Mengambil habit untuk bulan tertentu
+  }
+
+  @Get(':monthId/monthWithHabitStatuses/:userId')
+  async getMonthWithHabitStatuses(
+    @Param('monthId') monthId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.monthService.getMonthWithHabitStatuses(monthId, userId); // Mengambil status habits untuk bulan tertentu
   }
 }
