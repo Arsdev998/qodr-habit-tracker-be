@@ -26,25 +26,25 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { access_token } = await this.authService.login(loginDto);
+    const { user ,access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
       httpOnly: process.env.PRODUCTION === 'production',
-      secure: true,
+      secure: process.env.PRODUCTION === 'production',
       expires: new Date(Date.now() + 3600000),
     });
-    return { message: 'Login successfully' };
+
+    return user;
   }
-   
+
   // logout
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   async logout(@Res({ passthrough: true }) response: Response) {
-    response.cookie('jwt','',{
+    response.cookie('jwt', '', {
       httpOnly: process.env.PRODUCTION === 'production',
       expires: new Date(0),
       secure: true,
-    })
+    });
     return { message: 'Logout successfully' };
   }
-
 }

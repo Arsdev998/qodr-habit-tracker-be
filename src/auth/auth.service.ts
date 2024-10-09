@@ -41,10 +41,9 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.name, loginDto.password);
     const payload = { name: user.name, sub: user.id, role: user.role };
-    console.log(process.env.JWT_SECRET);
-
     return {
       access_token: this.jwtService.sign(payload),
+      user
     };
   }
 }
