@@ -8,10 +8,11 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard'; // Local guard untuk strategi login
-import { JwtAuthGuard } from './guards/jwt.auth.guard'; // JWT guard untuk melindungi route
+import { JwtAuthGuard } from './guards/jwt-auth.guard'; // JWT guard untuk melindungi route
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 
@@ -19,6 +20,7 @@ import { Response } from 'express';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // login
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -28,9 +30,10 @@ export class AuthController {
   ) {
     const { user ,access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
-      httpOnly: process.env.PRODUCTION === 'production',
+      httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
       expires: new Date(Date.now() + 3600000),
+      sameSite: 'lax',
     });
 
     return user;
@@ -46,5 +49,12 @@ export class AuthController {
       secure: true,
     });
     return { message: 'Logout successfully' };
+  }
+
+  //status
+  @UseGuards(JwtAuthGuard)
+  @Get('status')
+  async checkAuth(@Req() req) {
+    return {message: 'Authenticated', user:req.user}
   }
 }
