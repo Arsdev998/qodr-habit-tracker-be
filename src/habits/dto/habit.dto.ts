@@ -45,7 +45,8 @@ export class CreateHabitStatusDto {
 }
 
 export class UpdateHabitStatusDto {
-  dayId: number; // ID hari yang ingin di-update
-  habitId: number; // ID habit yang akan di-update
-  status: boolean; // Status true/false
+  dayId: number;
+  habitId: number;
+  userId: number; // Pastikan ini ada
+  status: boolean;
 }

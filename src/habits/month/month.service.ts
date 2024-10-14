@@ -31,33 +31,35 @@ export class MonthService {
   }
   // Menambahkan bulan baru
   async createMonth(createMonthDto: CreateMonthDto) {
-    const { name, year} = createMonthDto;
+    const { name, year } = createMonthDto;
 
     const monthIndex = new Date(`${name} 1, ${year}`).getMonth();
-    const daysInMonth = getDaysInMonth(new Date(year, monthIndex)); 
-    
+    const daysInMonth = getDaysInMonth(new Date(year, monthIndex));
+
     const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
-      date: i + 1, // Properti 'date' dengan angka hari
+      date: i + 1,
     }));
+
     // Buat bulan beserta hari-harinya
     const newMonth = await this.prisma.month.create({
       data: {
         name,
         year,
         days: {
-          create: daysData, 
+          create: daysData,
         },
       },
       include: {
-        days: true, 
+        days: true,
       },
     });
 
     const users = await this.prisma.user.findMany();
     const habits = await this.prisma.habit.findMany();
 
-    // Loop untuk setiap user dan habit
+    // Loop untuk setiap user
     for (const user of users) {
+      // Loop untuk setiap habit
       for (const habit of habits) {
         // Loop untuk setiap hari yang telah dibuat
         for (const day of newMonth.days) {
@@ -84,9 +86,9 @@ export class MonthService {
       where: {
         id: parseInt(id),
       },
-    })
-    if(!month){
-      throw new NotFoundException('Month Not Found')
+    });
+    if (!month) {
+      throw new NotFoundException('Month Not Found');
     }
     return this.prisma.month.update({
       where: { id: parseInt(id) },
@@ -131,7 +133,11 @@ export class MonthService {
   }
 
   async getMonthWithHabitStatuses(monthId: string, userId: string) {
-    return this.prisma.month.findUnique({
+    // Ambil semua habit
+    const allHabits = await this.prisma.habit.findMany();
+
+    // Ambil bulan berdasarkan monthId
+    const monthWithDays = await this.prisma.month.findUnique({
       where: {
         id: parseInt(monthId),
       },
@@ -142,19 +148,42 @@ export class MonthService {
           },
           include: {
             habitStatuses: {
-              orderBy: {
-                id: 'asc',
-              },
               where: {
-                userId: parseInt(userId), // Filter by user to get their specific habit status
+                userId: parseInt(userId), // Ambil status hanya untuk user ini
               },
               include: {
-                habit: true, // Include the habit details
+                habit: true,
               },
             },
           },
         },
       },
     });
+
+    // Gabungkan data habit dengan habitStatuses
+    if (monthWithDays) {
+      const daysWithHabitStatuses = monthWithDays.days.map((day) => {
+        // Gabungkan habit global dengan status user
+        const habitsWithStatus = allHabits.map((habit) => {
+          const status = day.habitStatuses.find(
+            (habitStatus) => habitStatus.habitId === habit.id,
+          );
+          return {
+            ...habit,
+            status: status ? status.status : false, // Status habit jika ada, atau false jika tidak ada
+          };
+        });
+        return {
+          ...day,
+          habitStatuses: habitsWithStatus, // Ganti dengan habit yang terhubung dengan user
+        };
+      });
+
+      return {
+        ...monthWithDays,
+        days: daysWithHabitStatuses,
+      };
+    }
+    return null; // Jika bulan tidak ditemukan
   }
 }

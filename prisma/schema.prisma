@@ -16,6 +16,7 @@ model User {
   motivation  String       @default("")
   joinDate    String
   role        Role         @default(SANTRI)// 'admin' atau 'santri'
+  habit       Habit[]
   habits      HabitStatus[] // Relasi ke HabitStatus untuk mencatat status kebiasaan per user per bulan
   warnings    Warning[]
   murajaah    Murajaah[]
@@ -60,6 +61,8 @@ model Habit {
   id          Int          @id @default(autoincrement())
   title       String        // Nama dari habit yang akan dilakukan oleh user
   habitStatuses HabitStatus[] // Relasi ke HabitStatus untuk melacak status kebiasaan
+  userId      Int?
+  user     User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
   updateAt   DateTime       @updatedAt
 }
