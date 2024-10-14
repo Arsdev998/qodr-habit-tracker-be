@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma_config/prisma.service';
 import { CreateMonthDto, UpdateMonthDto } from '../dto/month.dto';
-import { getDaysInMonth } from './date.utils';
-import { days } from '@nestjs/throttler';
-
+import { getDaysInMonth } from 'date-fns';
 @Injectable()
 export class MonthService {
   constructor(private readonly prisma: PrismaService) {}
@@ -33,24 +31,25 @@ export class MonthService {
   }
   // Menambahkan bulan baru
   async createMonth(createMonthDto: CreateMonthDto) {
-    const { name, year, days } = createMonthDto;
+    const { name, year} = createMonthDto;
 
-    // Buat array of Day objects dengan properti date dan dayNumber
-    const daysData = Array.from({ length: days }, (_, i) => ({
-      date: i + 1, // Pastikan menggunakan Int untuk field 'date'
+    const monthIndex = new Date(`${name} 1, ${year}`).getMonth();
+    const daysInMonth = getDaysInMonth(new Date(year, monthIndex)); 
+    
+    const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
+      date: i + 1, // Properti 'date' dengan angka hari
     }));
-
     // Buat bulan beserta hari-harinya
     const newMonth = await this.prisma.month.create({
       data: {
         name,
         year,
         days: {
-          create: daysData, // Membuat days dengan properti date dan dayNumber
+          create: daysData, 
         },
       },
       include: {
-        days: true, // Sertakan hari-hari yang baru saja dibuat dalam hasil
+        days: true, 
       },
     });
 
@@ -79,27 +78,16 @@ export class MonthService {
     return newMonth;
   }
 
-  // Helper untuk mendapatkan indeks bulan dari nama bulan
-  private getMonthIndex(monthName: string): number {
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return monthNames.indexOf(monthName); // Mengembalikan indeks bulan (0-11)
-  }
-
   // Memperbarui bulan berdasarkan ID
   async updateMonth(id: string, updateMonthDto: UpdateMonthDto) {
+    const month = await this.prisma.month.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    })
+    if(!month){
+      throw new NotFoundException('Month Not Found')
+    }
     return this.prisma.month.update({
       where: { id: parseInt(id) },
       data: {

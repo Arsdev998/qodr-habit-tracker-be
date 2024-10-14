@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsInt, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, IsInt, IsOptional, ValidateNested, IsArray } from 'class-validator';
 
 export class CreateMonthDto {
   @IsNotEmpty()
@@ -24,5 +25,22 @@ export class UpdateMonthDto {
   year?: number; // Tahun
 
   @IsOptional()
-  days?:number
+  date?: number[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true }) // Validasi setiap elemen array
+  @Type(() => DayDto) // Mapping ke DTO yang sesuai
+  days?: DayDto[]; // Array of day objects
+}
+
+class DayDto {
+  @IsInt()
+  date: number; // Tipe data Int sesuai dengan Prisma
+}
+
+
+export class UpdateDaysDto{
+  id:number;
+  date:number;
 }
