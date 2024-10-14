@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { MonthService } from './month.service';
 import { CreateMonthDto, UpdateMonthDto } from '../dto/month.dto';
 
@@ -17,17 +25,23 @@ export class MonthController {
     return this.monthService.getMonthById(id); // Mengambil bulan berdasarkan ID
   }
 
-  @Post('create')
+  @Post('/create')
   async createMonth(@Body() createMonthDto: CreateMonthDto) {
     return this.monthService.createMonth(createMonthDto); // Menambahkan bulan baru
   }
 
-  @Put(':id')
+  @Put('/update/:id')
   async updateMonth(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateMonthDto: UpdateMonthDto,
   ) {
     return this.monthService.updateMonth(id, updateMonthDto); // Memperbarui bulan berdasarkan ID
+  }
+
+  // delete month by id
+  @Delete('/delete/:id')
+  async deleteMonthById(@Param('id') id: string) {
+    return this.monthService.deleteMonth(id);
   }
 
   @Get(':id/habits')

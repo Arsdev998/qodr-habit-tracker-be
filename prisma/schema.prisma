@@ -10,16 +10,20 @@ datasource db {
 model User {
   id          Int          @id @default(autoincrement())
   name        String
+  fullname    String       @default("")
+  email       String       @default("")
   password    String
-  motivation  String
+  motivation  String       @default("")
   joinDate    String
-  role        Role         // 'admin' atau 'santri'
+  role        Role         @default(SANTRI)// 'admin' atau 'santri'
   habits      HabitStatus[] // Relasi ke HabitStatus untuk mencatat status kebiasaan per user per bulan
   warnings    Warning[]
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
   notifications Notification[]
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 enum Role {
@@ -33,26 +37,31 @@ model Month {
   id          Int          @id @default(autoincrement())
   name        String        // Nama bulan (misal: Januari)
   year        Int           
-  // Tahun (misal: 2024)
   habitStatuses HabitStatus[] // Hubungkan ke HabitStatus
   days        Day[]
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model Day{
   id         Int  @id @default(autoincrement())
   date       Int
   monthId    Int
-  month      Month  @relation(fields: [monthId],references: [id])
+  month      Month  @relation(fields: [monthId],references: [id],onDelete: Cascade)
   habitStatuses HabitStatus[]
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model Habit {
   id          Int          @id @default(autoincrement())
   title       String        // Nama dari habit yang akan dilakukan oleh user
   habitStatuses HabitStatus[] // Relasi ke HabitStatus untuk melacak status kebiasaan
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model HabitStatus {
@@ -67,6 +76,8 @@ model HabitStatus {
   day         Day      @relation(fields: [dayId], references: [id])
   status      Boolean  // Status True jika habit dilakukan, False jika tidak
   comments    String?  // Alasan tidak dilakukan (optional)
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 
@@ -79,6 +90,8 @@ model Murajaah {
   user        User          @relation(fields: [userId], references: [id])
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model Ziyadah {
@@ -89,6 +102,8 @@ model Ziyadah {
   user        User          @relation(fields: [userId], references: [id])
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model Tilawah {
@@ -99,6 +114,8 @@ model Tilawah {
   user        User          @relation(fields: [userId], references: [id])
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
+  createdAt   DateTime      @default(now())
+  updateAt   DateTime       @updatedAt
 }
 
 model Warning {
@@ -107,6 +124,7 @@ model Warning {
   type        String        // Jenis peringatan: 'green', 'yellow', 'red'
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
+  createdAt   DateTime      @default(now())
 }
 
 model Notification {
@@ -115,4 +133,12 @@ model Notification {
   user        User          @relation(fields: [userId], references: [id])
   message     String        // Pesan notifikasi
   status      Boolean       // true = dibaca, false = belum dibaca
+  createdAt   DateTime     @default(now())
+}
+
+model Evaluation {
+  id          Int         @id @default(autoincrement())
+  about       String
+  problem     String
+  createdAt   DateTime    @default(now())
 }

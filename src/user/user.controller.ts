@@ -5,6 +5,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/auth/guards/roles.guard";
 import { Roles } from "src/auth/guards/roles.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt.auth.guard";
+import { createUSerDto } from "./user.dto";
 
 @Controller('user')
 export class UserController {
@@ -18,7 +19,7 @@ export class UserController {
     }
      
     @Post('create')
-    async crateUser(@Body() data:{username:string; password:string, joinDate: string ,role: Role}) {
+    async crateUser(@Body() data:createUSerDto) {
         return this.userService.createUser(data);
     }
  

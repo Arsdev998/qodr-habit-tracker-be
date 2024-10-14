@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma_config/prisma.service';
 import { CreateMonthDto, UpdateMonthDto } from '../dto/month.dto';
 import { getDaysInMonth } from './date.utils';
@@ -99,10 +99,13 @@ export class MonthService {
   }
 
   // Memperbarui bulan berdasarkan ID
-  async updateMonth(id: number, updateMonthDto: UpdateMonthDto) {
+  async updateMonth(id: string, updateMonthDto: UpdateMonthDto) {
     return this.prisma.month.update({
-      where: { id },
-      data: updateMonthDto,
+      where: { id: parseInt(id) },
+      data: {
+        name: updateMonthDto.name,
+        year: updateMonthDto.year,
+      },
     });
   }
 
@@ -112,6 +115,31 @@ export class MonthService {
       where: { monthId },
       include: { habit: true }, // Menyertakan data habit
     });
+  }
+
+  async deleteMonth(monthId: string) {
+    const month = await this.prisma.month.findUnique({
+      where: {
+        id: parseInt(monthId),
+      },
+    });
+    if (!month) {
+      throw new NotFoundException('Month Not Found');
+    }
+    // Hapus semua days yang terkait dengan month ini
+    await this.prisma.day.deleteMany({
+      where: {
+        monthId: parseInt(monthId),
+      },
+    });
+    // Setelah days dihapus, hapus bulan
+    const deleteMonthById = await this.prisma.month.delete({
+      where: {
+        id: parseInt(monthId),
+      },
+    });
+
+    return deleteMonthById;
   }
 
   async getMonthWithHabitStatuses(monthId: string, userId: string) {

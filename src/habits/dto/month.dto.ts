@@ -22,4 +22,7 @@ export class UpdateMonthDto {
   @IsOptional()
   @IsInt()
   year?: number; // Tahun
+
+  @IsOptional()
+  days?:number
 }

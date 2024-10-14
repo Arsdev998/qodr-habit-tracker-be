@@ -60,6 +60,6 @@ export class HabitService {
         status:status
       }
     })
-    return {message:"status updated"}
+    return {message:"status updated",updtateStatus}
   }
 }
