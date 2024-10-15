@@ -133,9 +133,6 @@ export class MonthService {
   }
 
   async getMonthWithHabitStatuses(monthId: string, userId: string) {
-    // Ambil semua habit
-    const allHabits = await this.prisma.habit.findMany();
-
     // Ambil bulan berdasarkan monthId
     const monthWithDays = await this.prisma.month.findUnique({
       where: {
@@ -149,41 +146,16 @@ export class MonthService {
           include: {
             habitStatuses: {
               where: {
-                userId: parseInt(userId), // Ambil status hanya untuk user ini
+                userId: parseInt(userId),
               },
-              include: {
-                habit: true,
-              },
+              include:{
+                habit:true
+              }
             },
           },
         },
       },
     });
-
-    // Gabungkan data habit dengan habitStatuses
-    if (monthWithDays) {
-      const daysWithHabitStatuses = monthWithDays.days.map((day) => {
-        // Gabungkan habit global dengan status user
-        const habitsWithStatus = allHabits.map((habit) => {
-          const status = day.habitStatuses.find(
-            (habitStatus) => habitStatus.habitId === habit.id,
-          );
-          return {
-            ...habit,
-            status: status ? status.status : false, // Status habit jika ada, atau false jika tidak ada
-          };
-        });
-        return {
-          ...day,
-          habitStatuses: habitsWithStatus, // Ganti dengan habit yang terhubung dengan user
-        };
-      });
-
-      return {
-        ...monthWithDays,
-        days: daysWithHabitStatuses,
-      };
-    }
-    return null; // Jika bulan tidak ditemukan
+    return monthWithDays; // Jika bulan tidak ditemukan
   }
 }

@@ -72,11 +72,11 @@ model HabitStatus {
   userId      Int      // Mengacu pada user yang mengisi status habit
   user        User     @relation(fields: [userId], references: [id])
   habitId     Int      // Mengacu pada habit yang dilakukan
-  habit       Habit    @relation(fields: [habitId], references: [id])
+  habit       Habit    @relation(fields: [habitId], references: [id],onDelete: Cascade)
   monthId     Int      // Mengacu pada bulan
-  month       Month    @relation(fields: [monthId], references: [id])
+  month       Month    @relation(fields: [monthId], references: [id],onDelete: Cascade)
   dayId       Int      // Mengacu pada hari di bulan tertentu
-  day         Day      @relation(fields: [dayId], references: [id])
+  day         Day      @relation(fields: [dayId], references: [id],onDelete: Cascade)
   status      Boolean  // Status True jika habit dilakukan, False jika tidak
   comments    String?  // Alasan tidak dilakukan (optional)
   createdAt   DateTime      @default(now())

@@ -34,8 +34,6 @@ export class HabitService {
       where: { id: parseInt(monthId) },
       include: { days: true },
     });
-    console.log(daysInMonth);
-
     // Loop untuk setiap hari dan buat habit status untuk habit yang baru ditambahkan
     for (const day of daysInMonth.days) {
       await this.prisma.habitStatus.create({
@@ -47,7 +45,6 @@ export class HabitService {
           status: false, // Default ke false
         },
       });
-      console.log(day.id);
     }
 
     return newHabit;

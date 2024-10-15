@@ -32,28 +32,63 @@ export class UserService {
     }
     return user;
   }
-//    CREATE USER FUNCTION
   async createUser(data: createUSerDto): Promise<User> {
+    // Hash password user
     const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Cek apakah user sudah ada
     const checkUser = await this.prisma.user.findFirst({
       where: {
         name: data.name,
       },
     });
+
     if (checkUser) {
       throw new Error('User already exists');
     }
+
+    // Buat user baru
     const user = await this.prisma.user.create({
       data: {
         name: data.name,
         password: hashedPassword,
-        fullname:data.fullname,
-        email:data.email,
+        fullname: data.fullname,
+        email: data.email,
         joinDate: data.joinDate,
         motivation: '',
-        role:data.role
+        role: data.role,
       },
     });
+
+    // Ambil semua bulan yang ada
+    const months = await this.prisma.month.findMany({
+      include: {
+        days: true, // Ambil semua hari dalam setiap bulan
+      },
+    });
+
+    // Ambil semua habit yang ada
+    const habits = await this.prisma.habit.findMany();
+
+    // Loop untuk setiap bulan
+    for (const month of months) {
+      // Loop untuk setiap habit
+      for (const habit of habits) {
+        // Loop untuk setiap hari di bulan tersebut
+        for (const day of month.days) {
+          // Tambahkan habitStatus untuk user baru
+          await this.prisma.habitStatus.create({
+            data: {
+              userId: user.id, // User yang baru dibuat
+              habitId: habit.id,
+              monthId: month.id,
+              dayId: day.id, // ID hari yang sesuai
+              status: false, // Default ke false
+            },
+          });
+        }
+      }
+    }
 
     return user;
   }
