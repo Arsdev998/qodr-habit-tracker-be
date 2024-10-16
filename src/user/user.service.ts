@@ -68,8 +68,11 @@ export class UserService {
     });
 
     // Ambil semua habit yang ada
-    const habits = await this.prisma.habit.findMany();
-
+    const habits = await this.prisma.habit.findMany({
+      where:{
+        userId: null
+      }
+    });
     // Loop untuk setiap bulan
     for (const month of months) {
       // Loop untuk setiap habit

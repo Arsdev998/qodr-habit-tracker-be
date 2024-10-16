@@ -56,7 +56,6 @@ export class MonthService {
 
     const users = await this.prisma.user.findMany();
     const habits = await this.prisma.habit.findMany();
-
     // Loop untuk setiap user
     for (const user of users) {
       // Loop untuk setiap habit
@@ -145,12 +144,15 @@ export class MonthService {
           },
           include: {
             habitStatuses: {
+              orderBy: {
+                id: 'desc',
+              },
               where: {
                 userId: parseInt(userId),
               },
-              include:{
-                habit:true
-              }
+              include: {
+                habit: true,
+              },
             },
           },
         },
