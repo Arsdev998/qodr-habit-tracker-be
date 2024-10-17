@@ -94,11 +94,6 @@ export class HabitService {
         },
       },
     });
-
-    console.log(dayId, userId, habitId, status);
-
-    console.log(existingHabitStatus);
-
     if (!existingHabitStatus) {
       return { message: 'Habit status not found for the specified user.' };
     }

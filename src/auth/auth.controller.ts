@@ -15,10 +15,14 @@ import { LocalAuthGuard } from './guards/local-auth.guard'; // Local guard untuk
 import { JwtAuthGuard } from './guards/jwt-auth.guard'; // JWT guard untuk melindungi route
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {}
 
   // login
   @UseGuards(LocalAuthGuard)
@@ -28,7 +32,7 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { user ,access_token } = await this.authService.login(loginDto);
+    const { user, access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
@@ -55,6 +59,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('status')
   async checkAuth(@Req() req) {
-    return {message: 'Authenticated', user:req.user}
+    const user = await this.userService.getUserById(req.user.sub);
+    return { message: 'Authenticated', user: user };
   }
 }

@@ -20,11 +20,22 @@ export class UserService {
     return user;
   }
 
-  async getUserById(userId: string): Promise<User | null> {
+  async getUserById(userId: string){
     const user = await this.prisma.user.findUnique({
       where: {
         id: parseInt(userId),
       },
+      select:{
+        id: true,
+        name: true,
+        fullname: true,
+        email: true,
+        joinDate: true,
+        motivation: true,
+        role: true,
+        createdAt: true,
+        updateAt: true
+      }
     });
 
     if (!user) {

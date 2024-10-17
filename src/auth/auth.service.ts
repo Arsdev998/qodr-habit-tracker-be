@@ -16,7 +16,7 @@ export class AuthService {
   async validateToken(token: string): Promise<User> {
     try {
       const decoded = this.jwtService.verify(token); // Verifikasi token
-      const user = await this.userService.getUserById(decoded.sub); // Mendapatkan user berdasarkan id dari payload token
+      const user = await this.userService.getUserByUsername(decoded.name); // Mendapatkan user berdasarkan id dari payload token
       if (!user) {
         throw new UnauthorizedException('User not found');
       }
