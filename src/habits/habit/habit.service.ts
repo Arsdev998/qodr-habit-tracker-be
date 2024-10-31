@@ -98,7 +98,7 @@ export class HabitService {
       return { message: 'Habit status not found for the specified user.' };
     }
 
-    const update = await this.prisma.habitStatus.updateMany({
+      await this.prisma.habitStatus.updateMany({
       where: {
         dayId: dayId,
         habitId: habitId,
@@ -111,7 +111,17 @@ export class HabitService {
       },
     });
 
-    return { message: 'Status updated', update };
+    const statusUpdated= await this.prisma.habitStatus.findFirst({
+      where: {
+        dayId: dayId,
+        habitId: habitId,
+        userId: {
+          equals: userId || null,
+        },
+      },
+    });
+
+    return { message: 'Status updated successfully', statusUpdated };
   }
 
   async deleteHabit(id: string) {
