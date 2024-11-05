@@ -61,6 +61,7 @@ model Habit {
   id          Int          @id @default(autoincrement())
   title       String        // Nama dari habit yang akan dilakukan oleh user
   habitStatuses HabitStatus[] // Relasi ke HabitStatus untuk melacak status kebiasaan
+  maxDays     Int?  
   userId      Int?
   user     User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())

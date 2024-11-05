@@ -5,7 +5,6 @@ import {
   UpdateHabitDto,
   UpdateHabitStatusDto,
 } from '../dto/habit.dto';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('habit')
 export class HabitController {

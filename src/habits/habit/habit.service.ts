@@ -13,8 +13,11 @@ export class HabitService {
   //   create habits
   async createhabit(habitData: CreateHabitDto) {
     return this.prisma.habit.create({
-      data: habitData,
-    });
+      data:{
+        title:habitData.title,
+        maxDays:habitData.maxDays
+      }
+    })
   }
 
   async createHabitByUser(
@@ -25,6 +28,7 @@ export class HabitService {
     const newHabit = await this.prisma.habit.create({
       data: {
         title: habitData.title,
+        maxDays: habitData.maxDays,
         userId: parseInt(userId),
       },
     });
@@ -67,6 +71,7 @@ export class HabitService {
       },
       data: {
         title: habitData.title,
+        maxDays: habitData.maxDays
       },
     });
   }

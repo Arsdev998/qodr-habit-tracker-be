@@ -10,12 +10,18 @@ export class CreateHabitDto {
   @IsNotEmpty()
   @IsString()
   title: string; // Nama habit yang akan dilakukan oleh user
+
+  @IsInt()
+  maxDays: number
 }
 
 export class UpdateHabitDto {
   @IsOptional()
   @IsString()
-  title?: string; // Nama habit yang akan diupdate, bisa opsional
+  title?: string;
+  
+  @IsInt()
+  maxDays: number
 }
 
 export class CreateHabitStatusDto {
