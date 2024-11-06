@@ -9,9 +9,9 @@ datasource db {
 
 model User {
   id          Int          @id @default(autoincrement())
-  name        String
-  fullname    String       @default("")
-  email       String       @default("")
+  name        String       @db.VarChar(50) 
+  fullname    String       @db.VarChar(50)  @default("")
+  email       String       @db.VarChar(50)  @default("")
   password    String
   motivation  String       @default("")
   joinDate    String
@@ -36,7 +36,7 @@ enum Role {
 
 model Month {
   id          Int          @id @default(autoincrement())
-  name        String        // Nama bulan (misal: Januari)
+  name        String       @db.VarChar(50)  // Nama bulan (misal: Januari)
   year        Int           
   habitStatuses HabitStatus[] // Hubungkan ke HabitStatus
   days        Day[]
@@ -59,7 +59,7 @@ model Day{
 
 model Habit {
   id          Int          @id @default(autoincrement())
-  title       String        // Nama dari habit yang akan dilakukan oleh user
+  title       String       @db.VarChar(50) // Nama dari habit yang akan dilakukan oleh user
   habitStatuses HabitStatus[] // Relasi ke HabitStatus untuk melacak status kebiasaan
   maxDays     Int?  
   userId      Int?
@@ -88,8 +88,8 @@ model HabitStatus {
 
 model Murajaah {
   id          Int          @id @default(autoincrement())
-  surah       String        // Nama surah yang dihafal atau dibaca
-  lembar      Int           // Jumlah lembar yang dihafal
+  surah       String       @db.VarChar(55)      // Nama surah yang dihafal atau dibaca
+  date        DateTime     
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
   monthId     Int
@@ -100,8 +100,8 @@ model Murajaah {
 
 model Ziyadah {
   id          Int          @id @default(autoincrement())
-  surah       String        // Nama surah yang ditambah hafalannya
-  lembar      Int           // Jumlah lembar tambahan
+  surah       String       @db.VarChar(50) // Nama surah yang ditambah hafalannya
+  date        DateTime
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
   monthId     Int
@@ -112,7 +112,7 @@ model Ziyadah {
 
 model Tilawah {
   id          Int          @id @default(autoincrement())
-  surah       String        // Nama surah yang dibaca
+  surah       String       @db.VarChar(50) // Nama surah yang dibaca
   lembar      Int           // Jumlah lembar yang dibaca
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
@@ -135,14 +135,14 @@ model Notification {
   id          Int          @id @default(autoincrement())
   userId      Int
   user        User          @relation(fields: [userId], references: [id])
-  message     String        // Pesan notifikasi
+  message     String       @db.VarChar(500) // Pesan notifikasi
   status      Boolean       // true = dibaca, false = belum dibaca
   createdAt   DateTime     @default(now())
 }
 
 model Evaluation {
   id          Int         @id @default(autoincrement())
-  about       String
-  problem     String
+  about       String      @db.VarChar(100)
+  problem     String      @db.VarChar(500)
   createdAt   DateTime    @default(now())
 }

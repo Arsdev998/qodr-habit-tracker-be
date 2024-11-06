@@ -49,11 +49,36 @@ export class MonthController {
     return this.monthService.getHabitsForMonth(monthId); // Mengambil habit untuk bulan tertentu
   }
 
+  // get month by habit
   @Get(':monthId/monthWithHabitStatuses/:userId')
   async getMonthWithHabitStatuses(
     @Param('monthId') monthId: string,
     @Param('userId') userId: string,
   ) {
     return this.monthService.getMonthWithHabitStatuses(monthId, userId); // Mengambil status habits untuk bulan tertentu
+  }
+  //get month by tilawah
+  @Get(':monthId/monthWithTilawah/:userId')
+  async getMonthWithTilawah(
+    @Param('monthId') monthId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.monthService.getMonthByTilawah(monthId,userId)
+  }
+  //get month by murajaah
+  @Get(':monthId/monthWithMurajaah/:userId')
+  async getMonthWithMurajaah(
+    @Param('monthId') monthId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.monthService.getMonthByMurajaah(monthId,userId)
+  }
+  //get month by ZIYADAH
+  @Get(':monthId/monthWithZiyadah/:userId')
+  async getMonthWithZiyadah(
+    @Param('monthId') monthId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.monthService.getMonthByZiyadah(monthId,userId)
   }
 }

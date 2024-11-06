@@ -11,6 +11,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { AuthMiddleware } from './auth/middleware/auth.middleware';
 import { MonthModule } from './habits/month/month.module';
+import { TilawahModule } from './tilawah/tilawah.module';
+import { MurajaahModule } from './murajaah/murajaah.module';
+import { ZiyadahModule } from './ziyadah/ziyadah.module';
 
 @Module({
   imports: [
@@ -23,6 +26,9 @@ import { MonthModule } from './habits/month/month.module';
     UserModule,
     HabitModule,
     MonthModule,
+    TilawahModule,
+    MurajaahModule,
+    ZiyadahModule,
     SocketModule,
   ],
   controllers: [AppController],
@@ -36,6 +42,6 @@ import { MonthModule } from './habits/month/month.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); // Sesuaikan dengan rute Anda
+    consumer.apply(AuthMiddleware).forRoutes('*'); 
   }
 }

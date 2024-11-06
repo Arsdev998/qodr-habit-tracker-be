@@ -115,12 +115,17 @@ export class MonthService {
     if (!month) {
       throw new NotFoundException('Month Not Found');
     }
-    // Hapus semua days yang terkait dengan month ini
+    // Hapus semua  yang terkait dengan month ini
     await this.prisma.day.deleteMany({
       where: {
         monthId: parseInt(monthId),
       },
     });
+    await this.prisma.tilawah.deleteMany({
+      where:{
+        monthId: parseInt(monthId)
+      }
+    })
     // Setelah days dihapus, hapus bulan
     const deleteMonthById = await this.prisma.month.delete({
       where: {
@@ -131,6 +136,7 @@ export class MonthService {
     return deleteMonthById;
   }
 
+  // get month by habit
   async getMonthWithHabitStatuses(monthId: string, userId: string) {
     // Ambil bulan berdasarkan monthId
     const monthWithDays = await this.prisma.month.findUnique({
@@ -159,5 +165,66 @@ export class MonthService {
       },
     });
     return monthWithDays; // Jika bulan tidak ditemukan
+  }
+
+  // get month by tilawah
+  async getMonthByTilawah(monthId: string, userId: string) {
+    const monthTilawah = this.prisma.month.findUnique({
+      where: {
+        id: parseInt(monthId),
+      },
+      include: {
+        tilawah: {
+          where: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    if (!monthTilawah) {
+      throw new NotFoundException('NotFound');
+    }
+    return monthTilawah;
+  }
+  // GET MONTH BY MURAJA'AH
+  async getMonthByMurajaah(monthId: string, userId: string) {
+    const monthMurajaah = this.prisma.month.findUnique({
+      where: {
+        id: parseInt(monthId),
+      },
+      include: {
+        murajaah: {
+          where: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    if (!monthMurajaah) {
+      throw new NotFoundException('NotFound');
+    }
+    return monthMurajaah;
+  }
+  // GET MONTH ZIYADAH
+  async getMonthByZiyadah(monthId: string, userId: string) {
+    const monthZiyadah = this.prisma.month.findUnique({
+      where: {
+        id: parseInt(monthId),
+      },
+      include: {
+        ziyadah: {
+          where: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    if (!monthZiyadah) {
+      throw new NotFoundException('NotFound');
+    }
+    return monthZiyadah;
   }
 }
