@@ -126,6 +126,16 @@ export class MonthService {
         monthId: parseInt(monthId)
       }
     })
+    await this.prisma.murajaah.deleteMany({
+      where:{
+        monthId: parseInt(monthId)
+      }
+    })
+    await this.prisma.ziyadah.deleteMany({
+      where:{
+        monthId: parseInt(monthId)
+      }
+    })
     // Setelah days dihapus, hapus bulan
     const deleteMonthById = await this.prisma.month.delete({
       where: {
