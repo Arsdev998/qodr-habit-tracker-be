@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HabitModule } from './habits/habit/habit.module';
 import { PrismaModule } from './prisma_config/prisma.module';
-import { SocketModule } from './socket/socket.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
@@ -14,6 +13,7 @@ import { MonthModule } from './habits/month/month.module';
 import { TilawahModule } from './tilawah/tilawah.module';
 import { MurajaahModule } from './murajaah/murajaah.module';
 import { ZiyadahModule } from './ziyadah/ziyadah.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -28,8 +28,8 @@ import { ZiyadahModule } from './ziyadah/ziyadah.module';
     MonthModule,
     TilawahModule,
     MurajaahModule,
+    NotificationModule,
     ZiyadahModule,
-    SocketModule,
   ],
   controllers: [AppController],
   providers: [
