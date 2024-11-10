@@ -9,7 +9,7 @@ import { SocketService } from "./socket.service";
     imports:[PrismaModule],
     controllers:[NotificationController],
     providers:[NotificationService,NotificationGateway,SocketService],
-    exports:[NotificationService],
+    exports:[NotificationService,SocketService,NotificationGateway],
 })
 
 export class NotificationModule{}

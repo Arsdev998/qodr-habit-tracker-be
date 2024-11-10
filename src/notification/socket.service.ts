@@ -1,23 +1,29 @@
-// socket.service.ts
 import { Injectable } from '@nestjs/common';
-import { Server } from 'socket.io';
+import { NotificationGateway } from './notification.gateway';
 
 @Injectable()
 export class SocketService {
-  private server: Server;
+  constructor(private readonly notificationGateway: NotificationGateway) {}
 
-  constructor() {
-    // Setup server saat aplikasi dimulai
-    this.server = new Server();
-  }
+  async sendToUser(userId: string, notification: any) {
+    console.log('SocketService: Preparing to send notification');
+    console.log('Notification data:', notification);
+    console.log('Target userId:', userId);
 
-  sendToUser(userId: string, message: string) {
-    // Kirim notifikasi ke user tertentu
-    this.server.to(String(userId)).emit('notification', { message });
-  }
+    // Ensure the gateway is available
+    if (!this.notificationGateway) {
+      console.error('NotificationGateway is not initialized!');
+      return;
+    }
 
-  // Fungsi untuk memulai koneksi (akan dipanggil di main bootstrap)
-  start(server: any) {
-    this.server.attach(server);
+    try {
+      await this.notificationGateway.sendNotificationToUser(
+        userId,
+        notification,
+      );
+      console.log('SocketService: Notification sent successfully');
+    } catch (error) {
+      console.error('SocketService: Error sending notification:', error);
+    }
   }
 }

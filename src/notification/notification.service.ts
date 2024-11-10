@@ -10,32 +10,48 @@ export class NotificationService {
   ) {}
 
   async sendNotification(userId: string, message: string) {
-    // Simpan notifikasi ke database
-    const notification = await this.prisma.notification.create({
-      data: {
-        userId: parseInt(userId),
-        message:message,
-        status: false, // Status belum dibaca
-      },
-    });
+    try {
+      // Save notification to the database
+      const notification = await this.prisma.notification.create({
+        data: {
+          userId: parseInt(userId),
+          message: message,
+          status: false,
+        },
+      });
 
-    // Kirim notifikasi melalui WebSocket
-    this.socketService.sendToUser(userId, message); // Kirim melalui socket ke user tertentu
+      // Send complete notification via WebSocket
+      await this.socketService.sendToUser(userId, {
+        id: notification.id,
+        message: notification.message,
+        status: notification.status,
+        createdAt: notification.createdAt,
+      });
 
-    return notification;
+      return notification;
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      throw error; // Ensure the error is thrown for further handling
+    }
   }
 
-  async findNotificationsByUserId(userId: number) {
+  async findNotificationsByUserId(userId: string) {
     return this.prisma.notification.findMany({
-      where: { userId },
+      where: { userId: parseInt(userId) },
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async markAsRead(id: number) {
+  async markAsRead(id: string) {
     return this.prisma.notification.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: { status: true },
+    });
+  }
+
+  async getUnreadNotifications(userId: string) {
+    return this.prisma.notification.count({
+      where: { userId: parseInt(userId), status: false }, // Status belum dibaca
     });
   }
 }
