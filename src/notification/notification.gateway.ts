@@ -12,11 +12,12 @@ import { Injectable, Logger } from '@nestjs/common';
 @Injectable()
 @WebSocketGateway({
   cors: {
-    origin: [process.env.FRONTEND_URL, process.env.ADMIN_URL],
+    origin: ["http://localhost:3000"],
     methods: ['GET', 'POST'],
     credentials: true,
   },
-  namespace: '/notifications',
+  namespace: '/notification',
+  transport: ['polling', 'websocket'],
 })
 export class NotificationGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -25,7 +26,7 @@ export class NotificationGateway
   server: Server;
 
   private readonly logger = new Logger(NotificationGateway.name);
-  private userSocketMap = new Map<string, Set<string>>();
+  private userSocketMap: Map<string, Set<string>> = new Map();
 
   afterInit(server: Server) {
     this.logger.log('WebSocket server initialized');
@@ -33,38 +34,68 @@ export class NotificationGateway
   }
 
   handleConnection(client: Socket) {
-    // Extract userId from the handshake query
-    const userId = Array.isArray(client.handshake.query.userId)
-      ? client.handshake.query.userId[0]
-      : client.handshake.query.userId;
-    // Check if userId is provided
-    if (userId) {
-      // Join the user to their specific room
-      client.join(`user-${userId}`);
+    try {
+      const userId = this.extractUserId(client);
 
-      // Initialize the userSocketMap for the user if it doesn't exist
+      if (!userId) {
+        this.logger.warn(`Client ${client.id} connected without userId`);
+        client.disconnect();
+        return;
+      }
+
+      const roomName = `user-${userId}`;
+
+      // Join room
+      client.join(roomName);
+
+      // Track socket
       if (!this.userSocketMap.has(userId)) {
         this.userSocketMap.set(userId, new Set());
       }
-      // Add the client ID to the user's socket set
       this.userSocketMap.get(userId).add(client.id);
-      console.log(`User  ${userId} connected with socket id: ${client.id}`);
-    } else {
-      console.warn('No userId provided'); // Use console.warn for warnings
+
+      this.logger.log(
+        `Client connected - Socket ID: ${client.id}, User ID: ${userId}`,
+      );
+      this.logger.debug(`Current rooms for socket ${client.id}:`, [
+        ...client.rooms,
+      ]);
+
+      // Emit success connection event
+      client.emit('connect_success', {
+        status: 'connected',
+        socketId: client.id,
+        userId: userId,
+      });
+    } catch (error) {
+      this.logger.error(`Connection error: ${error.message}`);
+      client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-    for (const [userId, socketIds] of this.userSocketMap.entries()) {
-      if (socketIds.has(client.id)) {
-        socketIds.delete(client.id);
-        if (socketIds.size === 0) {
-          this.userSocketMap.delete(userId);
+    try {
+      const userId = this.extractUserId(client);
+      if (userId) {
+        const userSockets = this.userSocketMap.get(userId);
+        if (userSockets) {
+          userSockets.delete(client.id);
+          if (userSockets.size === 0) {
+            this.userSocketMap.delete(userId);
+          }
         }
-        this.logger.log(`Removed socket ${client.id} for user ${userId}`);
+        this.logger.log(
+          `Client disconnected - Socket ID: ${client.id}, User ID: ${userId}`,
+        );
       }
+    } catch (error) {
+      this.logger.error(`Disconnect error: ${error.message}`);
     }
+  }
+
+  private extractUserId(client: Socket): string | null {
+    const userId = client.handshake.query.userId;
+    return Array.isArray(userId) ? userId[0] : userId;
   }
 
   @SubscribeMessage('joinRoom')
@@ -109,22 +140,20 @@ export class NotificationGateway
   }
 
   async sendNotificationToUser(userId: string, notification: any) {
+    this.logger.debug(`Attempting to send notification to user ${userId}`);
+    this.logger.debug('Notification data:', notification);
     try {
-      this.logger.debug(`Attempting to send notification to user ${userId}`);
-      this.logger.debug('Notification data:', notification);
-
       if (!this.server) {
         this.logger.error('WebSocket server is not initialized');
         return;
       }
-
       const roomName = `user-${userId}`;
       const sockets = await this.server.in(roomName).fetchSockets();
 
       this.logger.debug(
         `Found ${sockets.length} socket(s) in room ${roomName}`,
       );
-
+      console.log('socket log', sockets);
       if (sockets.length > 0) {
         await this.server.to(roomName).emit('notification', notification);
         this.logger.log(`Notification sent to room ${roomName}`);
