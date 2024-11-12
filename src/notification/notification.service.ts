@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import { SocketService } from './socket.service';
 
@@ -73,7 +73,7 @@ export class NotificationService {
   async markAsRead(id: string) {
     try {
       const notification = await this.prisma.notification.update({
-        where: { id: parseInt(id)},
+        where: { id: parseInt(id) },
         data: { status: true },
       });
       // Optionally notify connected clients about the status change
@@ -101,20 +101,20 @@ export class NotificationService {
     }
   }
 
-  async maskReadMany(userId:string) {
+  async maskReadMany(userId: string) {
     try {
       await this.prisma.notification.updateMany({
-        where:{
+        where: {
           userId: parseInt(userId),
-          status:false
+          status: false,
         },
         data: {
           status: true,
         },
       });
-      return {message:"All notification mask read"}
+      return { message: 'All notification mask read' };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -175,37 +175,23 @@ export class NotificationService {
   }
 
   // New method to mark multiple notifications as read
-  async markMultipleAsRead(userId: string, notificationIds: string[]) {
+  async deleteManyNotification(userId: string) {
     try {
-      const result = await this.prisma.notification.updateMany({
+      const deleteResult = this.prisma.notification.deleteMany({
         where: {
-          id: { in: notificationIds.map((id) => parseInt(id)) },
           userId: parseInt(userId),
         },
-        data: { status: true },
       });
 
-      if (result.count > 0) {
-        try {
-          await this.socketService.sendToUser(userId, {
-            type: 'notifications_status_update',
-            ids: notificationIds,
-            status: true,
-          });
-        } catch (socketError) {
-          this.logger.warn(
-            `Failed to send bulk status update via WebSocket: ${socketError.message}`,
-          );
-        }
+      if ((await deleteResult).count === 0) {
+        throw new HttpException('No notification found', HttpStatus.NOT_FOUND);
       }
-
-      return result;
+      return {
+        statusCode: HttpStatus.NO_CONTENT,
+        message: 'Notification deleted succesfully',
+      };
     } catch (error) {
-      this.logger.error(
-        `Error marking multiple notifications as read for user ${userId}:`,
-        error.stack,
-      );
-      throw error;
+      throw new InternalServerErrorException('Internal server error');
     }
   }
 }

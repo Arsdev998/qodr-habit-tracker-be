@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { NotificationService } from './notification.service';
 
 @Controller('notifications')
@@ -29,8 +38,13 @@ export class NotificationController {
     return this.notificationService.getUnreadNotifications(userId);
   }
 
-  @Patch("/markreadmany/:userId")
-  async markReadMany(@Param('userId') userId:string){
-    return this.notificationService.maskReadMany(userId)
+  @Patch('/markreadmany/:userId')
+  async markReadMany(@Param('userId') userId: string) {
+    return this.notificationService.maskReadMany(userId);
+  }
+
+  @Delete('deletemany/:userId')
+  async deleteNotificationMany(@Param('userId') userId: string) {
+    return this.notificationService.deleteManyNotification(userId);
   }
 }

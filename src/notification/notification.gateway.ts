@@ -29,7 +29,6 @@ export class NotificationGateway
   private userSocketMap: Map<string, Set<string>> = new Map();
 
   afterInit(server: Server) {
-    this.logger.log('WebSocket server initialized');
     this.server = server;
   }
 
@@ -38,7 +37,6 @@ export class NotificationGateway
       const userId = this.extractUserId(client);
 
       if (!userId) {
-        this.logger.warn(`Client ${client.id} connected without userId`);
         client.disconnect();
         return;
       }
