@@ -12,7 +12,7 @@ export class UserController {
     constructor(private userService: UserService) {}
     
     @UseGuards(JwtAuthGuard)
-    // @Roles(Role.SANTRI,Role.ADMIN)
+    @Roles(Role.SANTRI,Role.ADMIN)
     @Get('get')
     async getAllUsers() {
         return this.userService.getAllUsers();

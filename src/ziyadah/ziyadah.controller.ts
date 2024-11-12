@@ -1,11 +1,14 @@
-import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ZiyadahServices} from './ziyadah.service';
 import { ZiyadahDto } from './ziyadah.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('ziyadah')
 export class ZiyadahController {
   constructor(private ziyadahServices: ZiyadahServices) {}
   // post tilawah
+
+  @UseGuards(JwtAuthGuard)
   @Post('/post/:monthId/:userId')
   async postMurajaahByUser(
     @Body() createZiyadahData: ZiyadahDto,
@@ -18,6 +21,7 @@ export class ZiyadahController {
       userId,
     );
   }
+  @UseGuards(JwtAuthGuard)
   // update tilawah
   @Patch('/update/:tilawahId')
   async editMurajaahUser(
@@ -29,6 +33,7 @@ export class ZiyadahController {
       tilawahId,
     );
   }
+  @UseGuards(JwtAuthGuard)
   //   deleted tilawah
   @Delete('/delete/:tilawahId')
   async deleteMurajaahUser(@Param('tilawahId') tilawahId: string) {
