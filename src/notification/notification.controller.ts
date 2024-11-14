@@ -22,10 +22,10 @@ export class NotificationController {
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Post(':userId')
   async sendNotification(
-    @Param('userId') userId: string, // Menangkap parameter userId sebagai string
-    @Body('message') message: string, // Menangkap pesan dari request body
+    @Param('userId') userId: string, 
+    @Body('message') message: string, 
   ) {
-    return this.notificationService.sendNotification(userId, message); // Konversi userId ke string
+    return this.notificationService.sendNotification(userId, message); 
   }
 
   @UseGuards(JwtAuthGuard)

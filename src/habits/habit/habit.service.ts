@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
-import { CreateHabitDto, UpdateHabitDto, UpdateHabitStatusDto } from '../dto/habit.dto';
+import {
+  CreateHabitDto,
+  UpdateHabitDto,
+  UpdateHabitStatusDto,
+} from '../dto/habit.dto';
 
 @Injectable()
 export class HabitService {
@@ -8,16 +12,20 @@ export class HabitService {
 
   //get all habits
   async getAllHabits() {
-    return this.prisma.habit.findMany();
+    return this.prisma.habit.findMany({
+      where: {
+        userId: null,
+      },
+    });
   }
   //   create habits
   async createhabit(habitData: CreateHabitDto) {
     return this.prisma.habit.create({
-      data:{
-        title:habitData.title,
-        maxDays:habitData.maxDays
-      }
-    })
+      data: {
+        title: habitData.title,
+        maxDays: habitData.maxDays,
+      },
+    });
   }
 
   async createHabitByUser(
@@ -71,7 +79,7 @@ export class HabitService {
       },
       data: {
         title: habitData.title,
-        maxDays: habitData.maxDays
+        maxDays: habitData.maxDays,
       },
     });
   }
@@ -103,7 +111,7 @@ export class HabitService {
       return { message: 'Habit status not found for the specified user.' };
     }
 
-      await this.prisma.habitStatus.updateMany({
+    await this.prisma.habitStatus.updateMany({
       where: {
         dayId: dayId,
         habitId: habitId,
@@ -116,7 +124,7 @@ export class HabitService {
       },
     });
 
-    const statusUpdated= await this.prisma.habitStatus.findFirst({
+    const statusUpdated = await this.prisma.habitStatus.findFirst({
       where: {
         dayId: dayId,
         habitId: habitId,
