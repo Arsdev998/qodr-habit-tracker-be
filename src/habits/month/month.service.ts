@@ -55,7 +55,11 @@ export class MonthService {
     });
 
     const users = await this.prisma.user.findMany();
-    const habits = await this.prisma.habit.findMany();
+    const habits = await this.prisma.habit.findMany({
+      where: {
+        userId: null,
+      },
+    });
     // Loop untuk setiap user
     for (const user of users) {
       // Loop untuk setiap habit
@@ -122,20 +126,20 @@ export class MonthService {
       },
     });
     await this.prisma.tilawah.deleteMany({
-      where:{
-        monthId: parseInt(monthId)
-      }
-    })
+      where: {
+        monthId: parseInt(monthId),
+      },
+    });
     await this.prisma.murajaah.deleteMany({
-      where:{
-        monthId: parseInt(monthId)
-      }
-    })
+      where: {
+        monthId: parseInt(monthId),
+      },
+    });
     await this.prisma.ziyadah.deleteMany({
-      where:{
-        monthId: parseInt(monthId)
-      }
-    })
+      where: {
+        monthId: parseInt(monthId),
+      },
+    });
     // Setelah days dihapus, hapus bulan
     const deleteMonthById = await this.prisma.month.delete({
       where: {

@@ -21,7 +21,7 @@ export class HabitController {
   // post by admin
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN,Role.SUPERADMIN)
-  @Post('post')
+  @Post('postByAdmin')
   async createHabit(@Body() createHabitDto: CreateHabitDto) {
     return this.habitService.createhabit(createHabitDto); // Sesuaikan nama method
   }
