@@ -14,7 +14,7 @@ import { RolesGuard } from './guards/roles.guard';
 @Module({
   imports: [
     PrismaModule,
-    UserModule, // Import user module untuk user management
+    // UserModule, // Import user module untuk user management
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Pastikan mengganti dengan secret yang aman

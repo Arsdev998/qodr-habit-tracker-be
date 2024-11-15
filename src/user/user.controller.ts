@@ -9,27 +9,29 @@ import { createUSerDto } from "./user.dto";
 
 @Controller('user')
 export class UserController {
-    constructor(private userService: UserService) {}
-    
-    @UseGuards(JwtAuthGuard)
-    @Roles(Role.SANTRI,Role.ADMIN)
-    @Get('getAll')
-    async getAllUsers() {
-        return this.userService.getAllUsers();
-    }
-     
-    @Post('create')
-    async crateUser(@Body() data:createUSerDto) {
-        return this.userService.createUser(data);
-    }
- 
-    @Get('get/:username')
-    async getUserByUsername(@Param('username') username: string) {
-        return this.userService.getUserByUsername(username);
-    }
+  constructor(private userService: UserService) {}
 
-    @Get('getById/:id')
-    async getUserById(@Param('id') id: string) {
-        return this.userService.getUserById(id);
-    }
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
+  @Get('getAll')
+  async getAllUsers() {
+    return this.userService.getAllUsers();
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(Role.SANTRI, Role.ADMIN)
+  @Post('create')
+  async crateUser(@Body() data: createUSerDto) {
+    return this.userService.createUser(data);
+  }
+
+  @Get('get/:username')
+  async getUserByUsername(@Param('username') username: string) {
+    return this.userService.getUserByUsername(username);
+  }
+
+  @Get('getById/:id')
+  async getUserById(@Param('id') id: string) {
+    return this.userService.getUserById(id);
+  }
 }

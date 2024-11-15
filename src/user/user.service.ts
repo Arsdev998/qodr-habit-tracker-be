@@ -20,12 +20,12 @@ export class UserService {
     return user;
   }
 
-  async getUserById(userId: string){
+  async getUserById(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: parseInt(userId),
       },
-      select:{
+      select: {
         id: true,
         name: true,
         fullname: true,
@@ -34,8 +34,8 @@ export class UserService {
         motivation: true,
         role: true,
         createdAt: true,
-        updateAt: true
-      }
+        updateAt: true,
+      },
     });
 
     if (!user) {
@@ -80,9 +80,9 @@ export class UserService {
 
     // Ambil semua habit yang ada
     const habits = await this.prisma.habit.findMany({
-      where:{
-        userId: null
-      }
+      where: {
+        userId: null,
+      },
     });
     // Loop untuk setiap bulan
     for (const month of months) {
@@ -106,9 +106,21 @@ export class UserService {
 
     return user;
   }
-
-  async getAllUsers(skip: number = 0, take: number = 10): Promise<User[]> {
-    const user = await this.prisma.user.findMany({
+  
+  async getAllUsers(skip: number = 0, take: number = 10) {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        fullname: true,
+        email: true,
+        motivation: true,
+        joinDate: true,
+        role: true,
+        createdAt: true,
+        updateAt: true,
+        // password tidak dimasukkan
+      },
       orderBy: {
         name: 'asc',
       },
@@ -116,9 +128,9 @@ export class UserService {
       take: take,
     });
 
-    if (!user) {
-      throw new Error('User not found');
+    if (!users) {
+      throw new Error('Users not found');
     }
-    return user;
+    return users;
   }
 }
