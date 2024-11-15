@@ -5,7 +5,7 @@ import { UserController } from "./user.controller";
 import { AuthModule } from "src/auth/auth.module";
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule,AuthModule],
     controllers: [UserController],
     providers: [UserService],
     exports:[UserService]

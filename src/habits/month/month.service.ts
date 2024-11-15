@@ -31,56 +31,67 @@ export class MonthService {
   }
   // Menambahkan bulan baru
   async createMonth(createMonthDto: CreateMonthDto) {
-    const { name, year } = createMonthDto;
+    return await this.prisma.$transaction(async (prisma) => {
+      const { name, year } = createMonthDto;
+      const monthIndex = new Date(`${name} 1, ${year}`).getMonth();
+      const daysInMonth = getDaysInMonth(new Date(year, monthIndex));
 
-    const monthIndex = new Date(`${name} 1, ${year}`).getMonth();
-    const daysInMonth = getDaysInMonth(new Date(year, monthIndex));
+      const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
+        date: i + 1,
+      }));
 
-    const daysData = Array.from({ length: daysInMonth }, (_, i) => ({
-      date: i + 1,
-    }));
-
-    // Buat bulan beserta hari-harinya
-    const newMonth = await this.prisma.month.create({
-      data: {
-        name,
-        year,
-        days: {
-          create: daysData,
+      // Buat bulan beserta hari-harinya
+      const newMonth = await prisma.month.create({
+        data: {
+          name,
+          year,
+          days: {
+            create: daysData,
+          },
         },
-      },
-      include: {
-        days: true,
-      },
-    });
+        include: {
+          days: true,
+        },
+      });
 
-    const users = await this.prisma.user.findMany();
-    const habits = await this.prisma.habit.findMany({
-      where: {
-        userId: null,
-      },
-    });
-    // Loop untuk setiap user
-    for (const user of users) {
-      // Loop untuk setiap habit
-      for (const habit of habits) {
-        // Loop untuk setiap hari yang telah dibuat
-        for (const day of newMonth.days) {
-          // Ambil day yang sudah ada dengan id yang digenerate
-          await this.prisma.habitStatus.create({
-            data: {
+      // Ambil semua user dan habit dalam satu query
+      const [users, habits] = await Promise.all([
+        prisma.user.findMany(),
+        prisma.habit.findMany({
+          where: {
+            userId: null,
+          },
+        }),
+      ]);
+
+      // Persiapkan data untuk bulk insert
+      const habitStatusData = [];
+      const BATCH_SIZE = 1000; // Sesuaikan dengan kebutuhan
+
+      for (const user of users) {
+        for (const habit of habits) {
+          for (const day of newMonth.days) {
+            habitStatusData.push({
               userId: user.id,
               habitId: habit.id,
               monthId: newMonth.id,
-              dayId: day.id, // Assign ID hari yang sesuai
-              status: false, // Default ke false
-            },
-          });
+              dayId: day.id,
+              status: false,
+            });
+          }
         }
       }
-    }
 
-    return newMonth;
+      // Bagi data menjadi batch-batch yang lebih kecil
+      for (let i = 0; i < habitStatusData.length; i += BATCH_SIZE) {
+        const batch = habitStatusData.slice(i, i + BATCH_SIZE);
+        await prisma.habitStatus.createMany({
+          data: batch,
+        });
+      }
+
+      return newMonth;
+    });
   }
 
   // Memperbarui bulan berdasarkan ID

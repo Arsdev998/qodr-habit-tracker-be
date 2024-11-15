@@ -20,12 +20,53 @@ export class HabitService {
   }
   //   create habits
   async createhabit(habitData: CreateHabitDto) {
-    return this.prisma.habit.create({
+    const newHabit = await this.prisma.habit.create({
       data: {
         title: habitData.title,
         maxDays: habitData.maxDays,
       },
     });
+
+    const users = await this.prisma.user.findMany();
+    const months = await this.prisma.month.findMany({
+      include: {
+        days: true,
+      },
+    });
+
+    const BATCH_SIZE = 1000;
+    const habitStatusData = [];
+
+    for (const user of users) {
+      for (const month of months) {
+        for (const day of month.days) {
+          habitStatusData.push({
+            userId: user.id,
+            habitId: newHabit.id,
+            monthId: month.id,
+            dayId: day.id,
+            status: false,
+          });
+
+          // Jika batch size tercapai, lakukan insert
+          if (habitStatusData.length >= BATCH_SIZE) {
+            await this.prisma.habitStatus.createMany({
+              data: habitStatusData,
+            });
+            habitStatusData.length = 0; // Reset array
+          }
+        }
+      }
+    }
+
+    // Insert sisa data
+    if (habitStatusData.length > 0) {
+      await this.prisma.habitStatus.createMany({
+        data: habitStatusData,
+      });
+    }
+
+    return newHabit;
   }
 
   async createHabitByUser(

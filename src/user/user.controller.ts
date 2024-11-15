@@ -4,7 +4,7 @@ import { Role } from "../auth/auth.types";
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/auth/guards/roles.guard";
 import { Roles } from "src/auth/guards/roles.decorator";
-import { JwtAuthGuard } from "src/auth/guards/jwt.auth.guard";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { createUSerDto } from "./user.dto";
 
 @Controller('user')
@@ -13,7 +13,7 @@ export class UserController {
     
     @UseGuards(JwtAuthGuard)
     @Roles(Role.SANTRI,Role.ADMIN)
-    @Get('get')
+    @Get('getAll')
     async getAllUsers() {
         return this.userService.getAllUsers();
     }
