@@ -71,7 +71,7 @@ model Habit {
 model HabitStatus {
   id          Int      @id @default(autoincrement())
   userId      Int      // Mengacu pada user yang mengisi status habit
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   habitId     Int      // Mengacu pada habit yang dilakukan
   habit       Habit    @relation(fields: [habitId], references: [id],onDelete: Cascade)
   monthId     Int      // Mengacu pada bulan
@@ -91,7 +91,7 @@ model Murajaah {
   surah       String       @db.VarChar(55)      // Nama surah yang dihafal atau dibaca
   date        DateTime     
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
   createdAt   DateTime      @default(now())
@@ -103,7 +103,7 @@ model Ziyadah {
   surah       String       @db.VarChar(50) // Nama surah yang ditambah hafalannya
   date        DateTime
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
   createdAt   DateTime      @default(now())
@@ -115,7 +115,7 @@ model Tilawah {
   surah       String       @db.VarChar(50) // Nama surah yang dibaca
   lembar      Int           // Jumlah lembar yang dibaca
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   monthId     Int
   month       Month         @relation(fields: [monthId], references: [id])
   createdAt   DateTime      @default(now())
@@ -127,14 +127,14 @@ model Warning {
   message     String        // Pesan peringatan
   type        String        // Jenis peringatan: 'green', 'yellow', 'red'
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now())
 }
 
 model Notification {
   id          Int          @id @default(autoincrement())
   userId      Int
-  user        User          @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   message     String       @db.VarChar(500) // Pesan notifikasi
   status      Boolean       // true = dibaca, false = belum dibaca
   createdAt   DateTime     @default(now())

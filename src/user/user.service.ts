@@ -43,6 +43,8 @@ export class UserService {
     }
     return user;
   }
+
+  //
   async createUser(data: createUSerDto): Promise<User> {
     // Hash password user
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -58,55 +60,64 @@ export class UserService {
       throw new Error('User already exists');
     }
 
-    // Buat user baru
-    const user = await this.prisma.user.create({
-      data: {
-        name: data.name,
-        password: hashedPassword,
-        fullname: data.fullname,
-        email: data.email,
-        joinDate: data.joinDate,
-        motivation: '',
-        role: data.role,
-      },
-    });
+    // Gunakan prisma transaction untuk memastikan atomicity
+    return await this.prisma.$transaction(async (tx) => {
+      // Buat user baru
+      const user = await tx.user.create({
+        data: {
+          name: data.name,
+          password: hashedPassword,
+          fullname: data.fullname,
+          email: data.email,
+          joinDate: data.joinDate,
+          motivation: '',
+          role: data.role,
+        },
+      });
 
-    // Ambil semua bulan yang ada
-    const months = await this.prisma.month.findMany({
-      include: {
-        days: true, // Ambil semua hari dalam setiap bulan
-      },
-    });
+      // Ambil semua data yang diperlukan dalam satu query
+      const [months, habits] = await Promise.all([
+        tx.month.findMany({
+          include: {
+            days: true,
+          },
+        }),
+        tx.habit.findMany({
+          where: {
+            userId: null,
+          },
+        }),
+      ]);
 
-    // Ambil semua habit yang ada
-    const habits = await this.prisma.habit.findMany({
-      where: {
-        userId: null,
-      },
-    });
-    // Loop untuk setiap bulan
-    for (const month of months) {
-      // Loop untuk setiap habit
-      for (const habit of habits) {
-        // Loop untuk setiap hari di bulan tersebut
-        for (const day of month.days) {
-          // Tambahkan habitStatus untuk user baru
-          await this.prisma.habitStatus.create({
-            data: {
-              userId: user.id, // User yang baru dibuat
+      // Siapkan data untuk bulk insert
+      const habitStatusData = [];
+
+      // Buat array data untuk bulk insert
+      for (const month of months) {
+        for (const habit of habits) {
+          for (const day of month.days) {
+            habitStatusData.push({
+              userId: user.id,
               habitId: habit.id,
               monthId: month.id,
-              dayId: day.id, // ID hari yang sesuai
-              status: false, // Default ke false
-            },
-          });
+              dayId: day.id,
+              status: false,
+            });
+          }
         }
       }
-    }
 
-    return user;
+      // Lakukan bulk insert untuk semua habitStatus sekaligus
+      if (habitStatusData.length > 0) {
+        await tx.habitStatus.createMany({
+          data: habitStatusData,
+        });
+      }
+
+      return user;
+    });
   }
-  
+
   async getAllUsers(skip: number = 0, take: number = 10) {
     const users = await this.prisma.user.findMany({
       select: {
@@ -132,5 +143,19 @@ export class UserService {
       throw new Error('Users not found');
     }
     return users;
+  }
+
+  async deletedUser(userId: string) {
+    const user = this.getUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    const deleted = await this.prisma.user.delete({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+
+    return { message: 'User Deleted Success' };
   }
 }

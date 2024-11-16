@@ -1,4 +1,4 @@
-import { Controller,Get,Post,Body, Param, UseGuards } from "@nestjs/common";
+import { Controller,Get,Post,Body, Param, UseGuards, Delete } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Role } from "../auth/auth.types";
 import { AuthGuard } from "@nestjs/passport";
@@ -33,5 +33,10 @@ export class UserController {
   @Get('getById/:id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
+  }
+
+  @Delete('/delete/:userId')
+  async deletedUSerByAdmin(@Param('userId')  userId:string){
+    return this.userService.deletedUser(userId)
   }
 }
