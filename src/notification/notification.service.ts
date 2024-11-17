@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import { SocketService } from './socket.service';
 
@@ -52,6 +58,92 @@ export class NotificationService {
         error.stack,
       );
       throw error;
+    }
+  }
+
+  async sendNotificationToAllUsers(message: string) {
+    try {
+      const users = await this.prisma.user.findMany({
+        where: {
+          role: 'SANTRI',
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      this.logger.log(`Sending notification to ${users.length} users...`);
+
+      console.log('users', users);
+
+      if (users.length === 0) {
+        throw new HttpException('No user found', HttpStatus.NOT_FOUND);
+      }
+
+      // Create notifications in bulk
+      const notifications = await this.prisma.notification.createMany({
+        data: users.map((user) => ({
+          userId: user.id,
+          message: message,
+          status: false,
+        })),
+      });
+
+      // Retrieve the notifications that were just created
+      const createdNotifications = await this.prisma.notification.findMany({
+        where: {
+          message: message,
+          createdAt: {
+            gte: new Date(Date.now() - 1000), // Adjust the time range as necessary
+          },
+        },
+        include: {
+          user: true, 
+        },
+      });
+
+      // Send notifications in batches
+      const batchSize = 50;
+      for (let i = 0; i < users.length; i += batchSize) {
+        const userBatch = users.slice(i, i + batchSize);
+        await Promise.all(
+          userBatch.map(async (user) => {
+            const userNotification = createdNotifications.find(
+              (n) => n.userId === user.id,
+            );
+
+            if (!userNotification) return;
+
+            const notificationData: NotificationData = {
+              id: userNotification.id,
+              message: userNotification.message,
+              status: userNotification.status,
+              createdAt: userNotification.createdAt,
+            };
+
+            try {
+              await this.socketService.sendToUser(
+                user.id.toString(),
+                notificationData,
+              );
+            } catch (socketError) {
+              this.logger.warn(
+                `Failed to send notification via WebSocket to user ${user.id}: ${socketError.message}`,
+                socketError.stack,
+              );
+            }
+          }),
+        );
+      }
+
+      return {
+        success: true,
+        totalNotifications: notifications.count,
+        message: 'Notifications sent successfully',
+      };
+    } catch (error) {
+      this.logger.error('Error in sendNotificationToAllUsers:', error.stack);
+      throw new Error('Failed to send notifications to all users');
     }
   }
 

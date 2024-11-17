@@ -18,8 +18,8 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Roles(Role.SANTRI, Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
   @Post('create')
   async crateUser(@Body() data: createUSerDto) {
     return this.userService.createUser(data);
@@ -35,8 +35,10 @@ export class UserController {
     return this.userService.getUserById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
   @Delete('/delete/:userId')
-  async deletedUSerByAdmin(@Param('userId')  userId:string){
-    return this.userService.deletedUser(userId)
+  async deletedUSerByAdmin(@Param('userId') userId: string) {
+    return this.userService.deletedUser(userId);
   }
-}
+} 

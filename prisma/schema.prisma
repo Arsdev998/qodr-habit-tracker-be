@@ -100,7 +100,7 @@ model Murajaah {
 
 model Ziyadah {
   id          Int          @id @default(autoincrement())
-  surah       String       @db.VarChar(50) // Nama surah yang ditambah hafalannya
+  surah       String       @db.VarChar(50) 
   date        DateTime
   userId      Int
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -124,7 +124,7 @@ model Tilawah {
 
 model Warning {
   id          Int          @id @default(autoincrement())
-  message     String        // Pesan peringatan
+  message     String       
   type        String        // Jenis peringatan: 'green', 'yellow', 'red'
   userId      Int
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -135,7 +135,8 @@ model Notification {
   id          Int          @id @default(autoincrement())
   userId      Int
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  message     String       @db.VarChar(500) // Pesan notifikasi
+  message     String        @db.Text
+  rawMessage  String?       @db.Text   
   status      Boolean       // true = dibaca, false = belum dibaca
   createdAt   DateTime     @default(now())
 }

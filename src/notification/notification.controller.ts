@@ -22,10 +22,16 @@ export class NotificationController {
   @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Post(':userId')
   async sendNotification(
-    @Param('userId') userId: string, 
-    @Body('message') message: string, 
+    @Param('userId') userId: string,
+    @Body('message') message: string,
   ) {
-    return this.notificationService.sendNotification(userId, message); 
+    return this.notificationService.sendNotification(userId, message);
+  }
+
+
+  @Post('/sendAll/sendToAllUsers')
+  async sendNotificationToAllUSer(@Body('message') message: string) {
+    return this.notificationService.sendNotificationToAllUsers(message);
   }
 
   @UseGuards(JwtAuthGuard)
