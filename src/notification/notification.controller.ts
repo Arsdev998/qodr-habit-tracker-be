@@ -20,7 +20,7 @@ export class NotificationController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN, Role.SUPERADMIN)
-  @Post(':userId')
+  @Post('/post/:userId')
   async sendNotification(
     @Param('userId') userId: string,
     @Body('message') message: string,
