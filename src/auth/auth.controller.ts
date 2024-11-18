@@ -38,7 +38,6 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production', 
       sameSite: 'none',
       expires: new Date(Date.now() + 3600000),
-      domain:'.vercel.app',
       path: '/', 
     });
     return user;
