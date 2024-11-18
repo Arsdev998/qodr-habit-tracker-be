@@ -38,7 +38,7 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'production',
       expires: new Date(Date.now() + 3600000),
       sameSite: 'none',
-      domain: process.env.FRONTEND_URL,
+      path: '/',
     });
     return user;
   }
