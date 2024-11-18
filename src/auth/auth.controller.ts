@@ -35,11 +35,10 @@ export class AuthController {
     const { user, access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       expires: new Date(Date.now() + 3600000),
       sameSite: 'none',
     });
-
     return user;
   }
 
