@@ -3,7 +3,6 @@ import { UserService } from "src/user/user.service";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt'
 import { LoginDto } from "./dto/login.dto";
-import { User } from "@prisma/client";
 
 
 @Injectable()
@@ -13,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateToken(token: string): Promise<User> {
+  async validateToken(token: string) {
     try {
       const decoded = this.jwtService.verify(token); // Verifikasi token
       const user = await this.userService.getUserByUsername(decoded.name); // Mendapatkan user berdasarkan id dari payload token
@@ -26,7 +25,7 @@ export class AuthService {
     }
   }
 
-  async validateUser(name: string, password: string): Promise<any> {
+  async validateUser(name: string, password: string) {
     const user = await this.userService.getUserByUsername(name);
     if (!user) {
       throw new NotFoundException('User not found');
