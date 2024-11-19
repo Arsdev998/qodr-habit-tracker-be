@@ -23,7 +23,6 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
-  // login
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -34,17 +33,20 @@ export class AuthController {
     const { user, access_token, expiresIn } =
       await this.authService.login(loginDto);
 
+    // Tambahkan Bearer token ke header
+    response.setHeader('Authorization', `Bearer ${access_token}`);
+
+    // Tetap set cookie untuk fallback
     response.cookie('jwt', access_token, {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
       maxAge: expiresIn * 1000, // Convert ke milliseconds
       sameSite: 'none',
-      path:'/',
+      path: '/',
     });
 
     return {
       user,
-      token: access_token,
     };
   }
 
