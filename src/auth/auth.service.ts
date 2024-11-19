@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { UserService } from "src/user/user.service";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from 'bcrypt'
-import { LoginDto } from "./dto/login.dto";
-
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,10 +42,18 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.name, loginDto.password);
-    const payload = { name: user.name, sub: user.id, role: user.role };
+    const expiresIn = 24 * 60 * 60; // 24 hours in seconds
+    const payload = {
+      name: user.name,
+      sub: user.id,
+      role: user.role,
+      exp: Math.floor(Date.now() / 1000) + expiresIn, // Explicit expiration
+    };
+    const access_token = this.jwtService.sign(payload);
     return {
-      access_token: this.jwtService.sign(payload),
-      user
+      access_token,
+      user,
+      expiresIn,
     };
   }
 }
