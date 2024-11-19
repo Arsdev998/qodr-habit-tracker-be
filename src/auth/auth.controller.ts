@@ -37,7 +37,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
-      expires: new Date(Date.now() + 3600000),
+      maxAge: 24 * 60 * 60 * 1000,
       path: '/',
     });
     return { user: user, token: access_token };
