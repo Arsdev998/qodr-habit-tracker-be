@@ -35,7 +35,7 @@ export class AuthController {
     const { user, access_token } = await this.authService.login(loginDto);
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true,
       sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000,
       path: '/',
