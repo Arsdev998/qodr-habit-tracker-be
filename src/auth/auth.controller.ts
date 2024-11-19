@@ -37,9 +37,8 @@ export class AuthController {
     response.cookie('jwt', access_token, {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
-      sameSite: 'none',
       maxAge: expiresIn * 1000, // Convert ke milliseconds
-      path: '/',
+      sameSite: 'none',
     });
 
     return {
