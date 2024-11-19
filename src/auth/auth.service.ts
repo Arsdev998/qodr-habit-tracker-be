@@ -29,9 +29,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.name, loginDto.password);
-
-    // Hitung expiration time
-    const expiresIn = 24 * 60 * 60; // 24 jam dalam detik
+    const expiresIn = 24 * 60 * 60; 
     const expiration = Math.floor(Date.now() / 1000) + expiresIn;
 
     const payload = {

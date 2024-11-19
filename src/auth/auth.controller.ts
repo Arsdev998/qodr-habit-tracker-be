@@ -24,7 +24,7 @@ export class AuthController {
   ) {}
 
   // login
-  // @UseGuards(LocalAuthGuard)
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
@@ -36,7 +36,7 @@ export class AuthController {
 
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.PRODUCTION === 'production',
       sameSite: 'none',
       maxAge: expiresIn * 1000, // Convert ke milliseconds
       path: '/',
