@@ -29,15 +29,12 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.name, loginDto.password);
-    const expiresIn = 24 * 60 * 60; 
-    const expiration = Math.floor(Date.now() / 1000) + expiresIn;
 
     const payload = {
       name: user.name,
       sub: user.id,
       role: user.role,
       iat: Math.floor(Date.now() / 1000),
-      exp: expiration,
     };
 
     const access_token = this.jwtService.sign(payload);
@@ -45,7 +42,6 @@ export class AuthService {
     return {
       access_token,
       user,
-      expiresIn,
     };
   }
 

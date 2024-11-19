@@ -15,12 +15,15 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard'; // JWT guard untuk melin
 import { LoginDto } from './dto/login.dto';
 import { Response } from 'express';
 import { UserService } from 'src/user/user.service';
+import { ConfigService } from '@nestjs/config';
+import ms from 'ms';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly configService: ConfigService,
   ) {}
 
   @UseGuards(LocalAuthGuard)
@@ -30,21 +33,21 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { user, access_token, expiresIn } =
-      await this.authService.login(loginDto);
-
+    const { user, access_token } = await this.authService.login(loginDto);
+    const expires = new Date();
+    expires.setMilliseconds(
+      expires.getMilliseconds() +
+        ms(this.configService.getOrThrow<string>('JWT_EXPIRATION')),
+    );
     // Tambahkan Bearer token ke header
     response.setHeader('Authorization', `Bearer ${access_token}`);
-
     // Tetap set cookie untuk fallback
     response.cookie('jwt', access_token, {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
-      maxAge: expiresIn * 1000, // Convert ke milliseconds
-      sameSite: 'strict',
-      path: '/',
+      expires,
     });
-
+    
     return {
       user,
     };
