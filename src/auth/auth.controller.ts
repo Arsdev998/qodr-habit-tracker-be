@@ -41,7 +41,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
       maxAge: expiresIn * 1000, // Convert ke milliseconds
-      sameSite: 'none',
+      sameSite: 'strict',
       path: '/',
     });
 
