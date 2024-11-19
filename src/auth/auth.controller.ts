@@ -45,9 +45,10 @@ export class AuthController {
     response.cookie('jwt', access_token, {
       httpOnly: true,
       secure: process.env.PRODUCTION === 'production',
+      sameSite:'none',
       expires,
     });
-    
+
     return {
       user,
     };
