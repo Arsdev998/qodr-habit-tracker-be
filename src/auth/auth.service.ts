@@ -15,19 +15,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateToken(token: string) {
-    try {
-      const decoded = this.jwtService.verify(token); // Verifikasi token
-      const user = await this.userService.getUserByUsername(decoded.name); // Mendapatkan user berdasarkan id dari payload token
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-      return user; // Mengembalikan user jika valid
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token'); // Mengembalikan UnauthorizedException jika token tidak valid
-    }
-  }
-
   async validateUser(name: string, password: string) {
     const user = await this.userService.getUserByUsername(name);
     if (!user) {
@@ -42,18 +29,46 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.name, loginDto.password);
-    const expiresIn = 24 * 60 * 60; // 24 hours in seconds
+
+    // Hitung expiration time
+    const expiresIn = 24 * 60 * 60; // 24 jam dalam detik
+    const expiration = Math.floor(Date.now() / 1000) + expiresIn;
+
     const payload = {
       name: user.name,
       sub: user.id,
       role: user.role,
-      exp: Math.floor(Date.now() / 1000) + expiresIn, // Explicit expiration
+      iat: Math.floor(Date.now() / 1000),
+      exp: expiration,
     };
+
     const access_token = this.jwtService.sign(payload);
+
     return {
       access_token,
       user,
       expiresIn,
     };
+  }
+
+  async validateToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      const user = await this.userService.getUserByUsername(decoded.name);
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Cek apakah token sudah expired
+      const currentTimestamp = Math.floor(Date.now() / 1000);
+      if (decoded.exp && decoded.exp < currentTimestamp) {
+        throw new UnauthorizedException('Token has expired');
+      }
+
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

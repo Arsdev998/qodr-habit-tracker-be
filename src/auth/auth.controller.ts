@@ -31,36 +31,21 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    try {
-      const { user, access_token, expiresIn } =
-        await this.authService.login(loginDto);
+    const { user, access_token, expiresIn } =
+      await this.authService.login(loginDto);
 
-      // Set cookie dengan options yang lebih spesifik
-      response.cookie('jwt', access_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        maxAge: expiresIn * 1000, // Convert to milliseconds
-        path: '/',
-        domain: process.env.COOKIE_DOMAIN || undefined, // Opsional: set domain jika diperlukan
-      });
+    response.cookie('jwt', access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: expiresIn * 1000, // Convert ke milliseconds
+      path: '/',
+    });
 
-      // Log untuk debugging
-      console.log('Cookie set with options:', {
-        token: access_token.substring(0, 20) + '...', // Log partial token
-        expiresIn,
-        maxAge: expiresIn * 1000,
-      });
-
-      return {
-        user,
-        token: access_token,
-        expiresIn,
-      };
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+    return {
+      user,
+      token: access_token,
+    };
   }
 
   // logout

@@ -18,7 +18,6 @@ import { RolesGuard } from './guards/roles.guard';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Pastikan mengganti dengan secret yang aman
-      signOptions: { expiresIn: '24h' }, // Token kedaluwarsa dalam 60 menit
     }),
   ],
   providers: [
