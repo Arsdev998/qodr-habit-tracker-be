@@ -39,9 +39,6 @@ export class AuthController {
       expires.getMilliseconds() +
         ms(this.configService.getOrThrow<string>('JWT_EXPIRATION')),
     );
-    // Tambahkan Bearer token ke header
-    response.setHeader('Access-Control-Expose-Headers', 'authorization');
-    response.setHeader('Authorization', `Bearer ${access_token}`);
     // Tetap set cookie untuk fallback
     response.cookie('jwt', access_token, {
       httpOnly: true,
