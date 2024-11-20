@@ -49,7 +49,6 @@ export class AuthController {
       sameSite: process.env.PRODUCTION === 'production' ? 'none' : 'lax',
       expires,
     });
-
     return {
       user,
     };
