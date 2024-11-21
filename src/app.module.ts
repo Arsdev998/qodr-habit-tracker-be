@@ -14,6 +14,7 @@ import { TilawahModule } from './tilawah/tilawah.module';
 import { MurajaahModule } from './murajaah/murajaah.module';
 import { ZiyadahModule } from './ziyadah/ziyadah.module';
 import { NotificationModule } from './notification/notification.module';
+import { EvaluationModule } from './evaluasi/evaluasi.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { NotificationModule } from './notification/notification.module';
     MurajaahModule,
     NotificationModule,
     ZiyadahModule,
+    EvaluationModule
   ],
   controllers: [AppController],
   providers: [

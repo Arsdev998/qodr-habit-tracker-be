@@ -28,7 +28,6 @@ export class NotificationController {
     return this.notificationService.sendNotification(userId, message);
   }
 
-
   @Post('/sendAll/sendToAllUsers')
   async sendNotificationToAllUSer(@Body('message') message: string) {
     return this.notificationService.sendNotificationToAllUsers(message);
