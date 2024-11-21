@@ -145,5 +145,6 @@ model Evaluation {
   id          Int         @id @default(autoincrement())
   about       String      @db.VarChar(100)
   problem     String      @db.VarChar(500)
+  identifier  String?      
   createdAt   DateTime    @default(now())
 }

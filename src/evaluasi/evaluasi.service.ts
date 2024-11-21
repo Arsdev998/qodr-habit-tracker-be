@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import { EvaluationDto } from './evaluation.dto';
 
@@ -25,20 +29,38 @@ export class EvaluationServices {
     };
   }
 
-  async postEvaluation(data: EvaluationDto) {
+  async postEvaluation(data: EvaluationDto, identifier: string) {
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const existingEvaluation = await this.prisma.evaluation.findFirst({
+      where: {
+        identifier,
+        createdAt: {
+          gte: oneDayAgo, // Dalam 24 jam terakhir
+        },
+      },
+    });
+
+    if (existingEvaluation) {
+       const nextAllowed = new Date(
+         existingEvaluation.createdAt.getTime() + 24 * 60 * 60 * 1000,
+       );
+      throw new BadRequestException(`Kamu baru bisa mengirim lagi pada ${nextAllowed}.`);
+    }
     if (!data) {
       throw new InternalServerErrorException('Field missing');
     }
-    console.log(data);
     const createEvaluation = await this.prisma.evaluation.create({
       data: {
         about: data.about,
         problem: data.problem,
+        identifier: identifier,
       },
     });
 
     return {
       message: 'Success Create Evaluation',
+      data: createEvaluation,
     };
   }
 }

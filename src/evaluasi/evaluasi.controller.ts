@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
 import { EvaluationServices } from './evaluasi.service';
 import { EvaluationDto} from './evaluation.dto';
 
@@ -17,7 +17,8 @@ export class EvaluationController {
   }
 
   @Post('post')
-  async postEvaluation(@Body() data: EvaluationDto) {
-    return this.evaluationService.postEvaluation(data);
+  async postEvaluation(@Body() data: EvaluationDto, @Req() req: any) {
+    const identifier = req.ip
+    return this.evaluationService.postEvaluation(data,identifier);
   }
 }
