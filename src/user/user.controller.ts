@@ -1,11 +1,11 @@
-import { Controller,Get,Post,Body, Param, UseGuards, Delete } from "@nestjs/common";
+import { Controller,Get,Post,Body, Param, UseGuards, Delete, Patch } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { Role } from "../auth/auth.types";
 import { AuthGuard } from "@nestjs/passport";
 import { RolesGuard } from "src/auth/guards/roles.guard";
 import { Roles } from "src/auth/guards/roles.decorator";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { createUSerDto } from "./user.dto";
+import { createUSerDto, UpdatePasswordDto } from "./user.dto";
 
 @Controller('user')
 export class UserController {
@@ -33,6 +33,18 @@ export class UserController {
   @Get('getById/:id')
   async getUserById(@Param('id') id: string) {
     return this.userService.getUserById(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/update/:userId')
+  async editUser(@Param('userId') userId: string, @Body() data: createUSerDto) {
+    return this.userService.editUser(userId, data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/updatePassword/:userId')
+  async updatePassword(@Param('userId') userId: string, @Body() data: UpdatePasswordDto) {
+    return this.userService.updatePassword(userId,data);
   }
 
   @UseGuards(JwtAuthGuard)

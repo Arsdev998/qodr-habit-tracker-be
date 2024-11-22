@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { createUSerDto } from './user.dto';
+import { createUSerDto, UpdatePasswordDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -87,10 +92,7 @@ export class UserService {
           },
         }),
       ]);
-
-      // Siapkan data untuk bulk insert
       const habitStatusData = [];
-
       // Buat array data untuk bulk insert
       for (const month of months) {
         for (const habit of habits) {
@@ -105,7 +107,6 @@ export class UserService {
           }
         }
       }
-
       // Lakukan bulk insert untuk semua habitStatus sekaligus
       if (habitStatusData.length > 0) {
         await tx.habitStatus.createMany({
@@ -129,7 +130,6 @@ export class UserService {
         role: true,
         createdAt: true,
         updateAt: true,
-        // password tidak dimasukkan
       },
       orderBy: {
         name: 'asc',
@@ -144,6 +144,28 @@ export class UserService {
     return users;
   }
 
+  async editUser(userId: string, data: createUSerDto) {
+    const { name, fullname, email, motivation } = data;
+    const user = await this.getUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        name: name,
+        fullname: fullname,
+        email: email,
+        motivation: motivation,
+      },
+    });
+    return { message: 'User Updated Successfully', updated };
+  }
+
   async deletedUser(userId: string) {
     const user = this.getUserById(userId);
     if (!user) {
@@ -156,5 +178,37 @@ export class UserService {
     });
 
     return { message: 'User Deleted Success' };
+  }
+
+  async updatePassword(userId: string, data: UpdatePasswordDto) {
+    const { oldPassword, newPassword, confirmPassword } = data;
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: parseInt(userId),
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    if (!user.password || !oldPassword || !newPassword || !confirmPassword) {
+      throw new NotFoundException('Password Not Found');
+    }
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('Password Not Match');
+    }
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid Password');
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await this.prisma.user.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+    return { message: 'Password Updated Successfully' };
   }
 }

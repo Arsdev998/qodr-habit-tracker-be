@@ -63,4 +63,24 @@ export class EvaluationServices {
       data: createEvaluation,
     };
   }
+
+  async deleteEvaluation(id: string) {
+    const evaluation = await this.prisma.evaluation.findFirst({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    if (!evaluation) {
+      throw new BadRequestException('Evaluation Not Found');
+    }
+    const deleteEvaluation = await this.prisma.evaluation.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    return {
+      message: 'Success Delete Evaluation',
+      data: deleteEvaluation,
+    };
+  }
 }
