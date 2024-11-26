@@ -8,7 +8,7 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   app.enableCors({
-    origin: process.env.FRONTEND_URL,
+    origin: 'https://fe-habit-tracker-qodr-npt1.vercel.app',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
