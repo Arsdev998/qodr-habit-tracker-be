@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "paths": {
+      "src/*":["./src/*"]
+    },
     "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
