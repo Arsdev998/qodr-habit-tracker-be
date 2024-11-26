@@ -11,7 +11,7 @@ import {
 import { TilawahDto } from './tilawahdto';
 import { TilawahService } from './tilawah.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getUser } from 'src/auth/decorators/get-user.decorator';
+import { getUser } from 'src/auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('tilawah')
@@ -40,12 +40,19 @@ export class TilawahController {
     @Param('tilawahId') tilawahId: string,
     @getUser() user: userPayload,
   ) {
-    return this.tilawahService.editTilawahInMonth(editTilawahData, tilawahId, user.sub);
+    return this.tilawahService.editTilawahInMonth(
+      editTilawahData,
+      tilawahId,
+      user.sub,
+    );
   }
   @UseGuards(JwtAuthGuard)
   //   deleted tilawah
   @Delete('/delete/:tilawahId')
-  async deleteTilawahUser(@Param('tilawahId') tilawahId: string , @getUser() user: userPayload) {
+  async deleteTilawahUser(
+    @Param('tilawahId') tilawahId: string,
+    @getUser() user: userPayload,
+  ) {
     return this.tilawahService.deleteTilawahInMonth(tilawahId, user.sub);
   }
 }

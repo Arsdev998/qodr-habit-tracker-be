@@ -1,8 +1,16 @@
-import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ZiyadahServices} from './ziyadah.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ZiyadahServices } from './ziyadah.service';
 import { ZiyadahDto } from './ziyadah.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getUser } from 'src/auth/decorators/get-user.decorator';
+import { getUser } from 'src/auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('ziyadah')
@@ -29,18 +37,21 @@ export class ZiyadahController {
   async editMurajaahUser(
     @Body() murajaaheditdata: ZiyadahDto,
     @Param('tilawahId') tilawahId: string,
-    @getUser() user:userPayload
+    @getUser() user: userPayload,
   ) {
     return this.ziyadahServices.editMurajaahInMonth(
       murajaaheditdata,
       tilawahId,
-      user.sub
+      user.sub,
     );
   }
   @UseGuards(JwtAuthGuard)
   //   deleted tilawah
   @Delete('/delete/:tilawahId')
-  async deleteMurajaahUser(@Param('tilawahId') tilawahId: string, @getUser() user: userPayload) {
+  async deleteMurajaahUser(
+    @Param('tilawahId') tilawahId: string,
+    @getUser() user: userPayload,
+  ) {
     return this.ziyadahServices.deleteTilawahInMonth(tilawahId, user.sub);
   }
 }

@@ -1,4 +1,14 @@
-import { Controller, Post, Body, Get, Put, Param, Patch, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Put,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
   CreateHabitDto,
@@ -8,7 +18,7 @@ import {
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles.decorator';
 import { Role } from 'src/auth/auth.types';
-import { getUser } from 'src/auth/decorators/get-user.decorator';
+import { getUser } from 'src/auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('habit')
@@ -22,7 +32,7 @@ export class HabitController {
 
   // post by admin
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN,Role.SUPERADMIN)
+  @Roles(Role.ADMIN, Role.SUPERADMIN)
   @Post('postByAdmin')
   async createHabit(@Body() createHabitDto: CreateHabitDto) {
     return this.habitService.createhabit(createHabitDto); // Sesuaikan nama method
@@ -57,8 +67,11 @@ export class HabitController {
   @UseGuards(JwtAuthGuard)
   // habit status
   @Patch('update')
-  async updateHabitStatus(@Body() updateHabitStatusDto: UpdateHabitStatusDto, @getUser() user: userPayload) {
-    return this.habitService.updateHabitStatus(updateHabitStatusDto,user.sub);
+  async updateHabitStatus(
+    @Body() updateHabitStatusDto: UpdateHabitStatusDto,
+    @getUser() user: userPayload,
+  ) {
+    return this.habitService.updateHabitStatus(updateHabitStatusDto, user.sub);
   }
 
   @UseGuards(JwtAuthGuard)

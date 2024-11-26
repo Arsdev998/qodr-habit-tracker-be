@@ -10,7 +10,7 @@ import {
 import { MurajaahServices } from './murajaah.service';
 import { MurajaahDto } from './murajaah.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getUser } from 'src/auth/decorators/get-user.decorator';
+import { getUser } from 'src/auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('murajaah')
@@ -41,14 +41,17 @@ export class MurajaahController {
     return this.murajaahService.editMurajaahInMonth(
       murajaaheditdata,
       murajaahId,
-      user.sub
+      user.sub,
     );
   }
 
   //   deleted murajaah
   @Delete('/delete/:murajaahId')
   @UseGuards(JwtAuthGuard)
-  async deleteMurajaahUser(@Param('murajaahId') murajaahId: string, @getUser() user: userPayload) {
+  async deleteMurajaahUser(
+    @Param('murajaahId') murajaahId: string,
+    @getUser() user: userPayload,
+  ) {
     return this.murajaahService.deleteTilawahInMonth(murajaahId, user.sub);
   }
 }
