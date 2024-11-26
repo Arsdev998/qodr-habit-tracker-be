@@ -2,7 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "paths": {
-      "src/*":["./src/*"]
+      "@/auth/*": ["src/auth/*"],
+      "@/decorators/*": ["src/decorators/*"],
+      "@/common/*": ["src/common/*"]
     },
     "esModuleInterop": true,
     "declaration": true,
