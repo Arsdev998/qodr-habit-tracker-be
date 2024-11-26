@@ -11,7 +11,7 @@ import {
 import { TilawahDto } from './tilawahdto';
 import { TilawahService } from './tilawah.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getUser } from 'src/auth/decorators/get.user.decorator';
+import { getUser } from '../auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('tilawah')

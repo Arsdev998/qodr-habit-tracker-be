@@ -14,7 +14,7 @@ import { Roles } from 'src/auth/guards/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { createUSerDto, UpdatePasswordDto } from './user.dto';
 import { userPayload } from 'src/types/userPayload';
-import { getUser } from 'src/auth/decorators/get.user.decorator';
+import { getUser } from '../auth/decorators/get.user.decorator';
 
 @Controller('user')
 export class UserController {

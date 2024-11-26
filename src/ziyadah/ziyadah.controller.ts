@@ -10,7 +10,7 @@ import {
 import { ZiyadahServices } from './ziyadah.service';
 import { ZiyadahDto } from './ziyadah.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { getUser } from 'src/auth/decorators/get.user.decorator';
+import { getUser } from '../auth/decorators/get.user.decorator';
 import { userPayload } from 'src/types/userPayload';
 
 @Controller('ziyadah')
