@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import { TilawahDto } from './tilawahdto';
 
@@ -19,7 +23,11 @@ export class TilawahService {
     return { message: 'Create Tilawah Success', createTilawah };
   }
   //   edit tilawah
-  async editTilawahInMonth(data: TilawahDto, tilawahId: string) {
+  async editTilawahInMonth(
+    data: TilawahDto,
+    tilawahId: string,
+    reqUSerId: number,
+  ) {
     const tilawah = await this.prisma.tilawah.findFirst({
       where: {
         id: parseInt(tilawahId),
@@ -27,6 +35,9 @@ export class TilawahService {
     });
     if (!tilawah) {
       throw new NotFoundException('Tilawah Notfound');
+    }
+    if (tilawah.userId !== reqUSerId) {
+      throw new ForbiddenException('ForbidenAcces Update This Resource');
     }
     const tilawahEdit = await this.prisma.tilawah.update({
       where: {
@@ -42,7 +53,7 @@ export class TilawahService {
 
   //   delete tilawah
 
-  async deleteTilawahInMonth(tilawahId: string) {
+  async deleteTilawahInMonth(tilawahId: string, userReqId: number) {
     const tilawah = await this.prisma.tilawah.findFirst({
       where: {
         id: parseInt(tilawahId),

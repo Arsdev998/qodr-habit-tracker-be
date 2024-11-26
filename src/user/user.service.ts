@@ -144,12 +144,15 @@ export class UserService {
     return users;
   }
 
-  async editUser(userId: string, data: createUSerDto) {
+  async editUser(userId: string, data: createUSerDto, reqUserId: number) {
     const { name, fullname, email, motivation } = data;
     const user = await this.getUserById(userId);
 
     if (!user) {
       throw new NotFoundException('User Not Found');
+    }
+    if(user.id !== reqUserId){
+      throw new UnauthorizedException('Unauthorized');
     }
 
     const updated = await this.prisma.user.update({
@@ -180,7 +183,7 @@ export class UserService {
     return { message: 'User Deleted Success' };
   }
 
-  async updatePassword(userId: string, data: UpdatePasswordDto) {
+  async updatePassword(userId: string, data: UpdatePasswordDto, reqUSerId: number) {
     const { oldPassword, newPassword, confirmPassword } = data;
     const user = await this.prisma.user.findUnique({
       where: {
@@ -189,6 +192,9 @@ export class UserService {
     });
     if (!user) {
       throw new NotFoundException('User Not Found');
+    }
+    if(user.id !== reqUSerId){
+      throw new UnauthorizedException('Unauthorized');
     }
     if (!user.password || !oldPassword || !newPassword || !confirmPassword) {
       throw new NotFoundException('Password Not Found');

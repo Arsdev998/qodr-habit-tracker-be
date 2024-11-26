@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import {
   CreateHabitDto,
   UpdateHabitDto,
   UpdateHabitStatusDto,
 } from '../dto/habit.dto';
+import { userPayload } from 'src/types/userPayload';
 
 @Injectable()
 export class HabitService {
@@ -104,13 +105,21 @@ export class HabitService {
   }
 
   //   update habits
-  async updateHabit(id: string, habitData: UpdateHabitDto) {
+  async updateHabit(id: string, habitData: UpdateHabitDto, user:userPayload) {
     const exists = await this.prisma.habit.findUnique({
       where: {
         id: parseInt(id),
       },
     });
-
+   if(exists.userId){
+     if(exists.userId.toString() !== user.sub.toString()){
+       throw new ForbiddenException('ForbidenAcces Update This Resource');
+     }
+   }else{
+     if(user.role === 'SANTRI'){
+       throw new ForbiddenException('ForbidenAcces Update This Resource');
+     }
+   }
     if (!exists) {
       throw new NotFoundException(`Habit with ID ${id} not found`);
     }
@@ -136,7 +145,7 @@ export class HabitService {
     });
   }
   // habit status
-  async updateHabitStatus(updateHabitStatusDto: UpdateHabitStatusDto) {
+  async updateHabitStatus(updateHabitStatusDto: UpdateHabitStatusDto, reqUserId: number) {
     const { dayId, habitId, status, userId } = updateHabitStatusDto;
     // Cek apakah habit status sudah ada
     const existingHabitStatus = await this.prisma.habitStatus.findFirst({
@@ -149,9 +158,11 @@ export class HabitService {
       },
     });
     if (!existingHabitStatus) {
-      return { message: 'Habit status not found for the specified user.' };
+      throw new NotFoundException('Habit status not found');
     }
-
+    if(reqUserId.toString() !== existingHabitStatus.userId.toString()){
+      throw new ForbiddenException('ForbidenAcces Update This Resource');
+    }
     await this.prisma.habitStatus.updateMany({
       where: {
         dayId: dayId,
@@ -164,7 +175,6 @@ export class HabitService {
         status: status,
       },
     });
-
     const statusUpdated = await this.prisma.habitStatus.findFirst({
       where: {
         dayId: dayId,
@@ -174,7 +184,7 @@ export class HabitService {
         },
       },
     });
-
+    
     return { message: 'Status updated successfully', statusUpdated };
   }
 

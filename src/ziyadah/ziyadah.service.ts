@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
 import { ZiyadahDto } from './ziyadah.dto';
 
@@ -19,7 +19,7 @@ export class ZiyadahServices {
     return { message: 'Create Ziyadah Success', createZiyadah };
   }
   //   edit ziyadah
-  async editMurajaahInMonth(data: ZiyadahDto, ziyadahId: string) {
+  async editMurajaahInMonth(data: ZiyadahDto, ziyadahId: string, reqUSerId: number) {
     const ziyadah = await this.prisma.ziyadah.findFirst({
       where: {
         id: parseInt(ziyadahId),
@@ -27,6 +27,9 @@ export class ZiyadahServices {
     });
     if (!ziyadah) {
       throw new NotFoundException('Ziyadah Notfound');
+    }
+    if (ziyadah.userId !== reqUSerId) {
+      throw new ForbiddenException('ForbidenAcces Update This Resource');
     }
     const tilawahEdit = await this.prisma.ziyadah.update({
       where: {
@@ -42,7 +45,7 @@ export class ZiyadahServices {
 
   //   delete ziyadah
 
-  async deleteTilawahInMonth(ziyadahId: string) {
+  async deleteTilawahInMonth(ziyadahId: string , reqUSerId: number) {
     const ziyadah = await this.prisma.ziyadah.findFirst({
       where: {
         id: parseInt(ziyadahId),
@@ -50,6 +53,9 @@ export class ZiyadahServices {
     });
     if (!ziyadah) {
       throw new NotFoundException('Ziyadah NotFound');
+    }
+    if(reqUSerId.toString() !== ziyadah.userId.toString()) {
+      throw new ForbiddenException('ForbidenAcces Deleted This Resource');
     }
     const deleteTilawah = await this.prisma.ziyadah.delete({
       where: {

@@ -1,10 +1,17 @@
-import { Body, Controller, Delete, Param, Patch, Post, UseGuards } from "@nestjs/common";
-import { MurajaahServices } from "./murajaah.service";
-import { MurajaahDto } from "./murajaah.dto";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { UserOwnershipGuard } from "src/auth/guards/user-ownership.guard";
-import { getUser } from "src/auth/decorators/get-user.decorator";
-
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { MurajaahServices } from './murajaah.service';
+import { MurajaahDto } from './murajaah.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { getUser } from 'src/auth/decorators/get-user.decorator';
+import { userPayload } from 'src/types/userPayload';
 
 @Controller('murajaah')
 export class MurajaahController {
@@ -24,23 +31,24 @@ export class MurajaahController {
     );
   }
   // update murajaah
-  @UseGuards(JwtAuthGuard,UserOwnershipGuard)
   @Patch('/update/:murajaahId')
+  @UseGuards(JwtAuthGuard)
   async editMurajaahUser(
     @Body() murajaaheditdata: MurajaahDto,
     @Param('murajaahId') murajaahId: string,
-    @getUser() user: any
+    @getUser() user: userPayload,
   ) {
-    console.log('user',user)
     return this.murajaahService.editMurajaahInMonth(
       murajaaheditdata,
-      murajaahId
+      murajaahId,
+      user.sub
     );
   }
-  @UseGuards(JwtAuthGuard)
+
   //   deleted murajaah
   @Delete('/delete/:murajaahId')
-  async deleteMurajaahUser(@Param('murajaahId') murajaahId: string) {
-    return this.murajaahService.deleteTilawahInMonth(murajaahId);
+  @UseGuards(JwtAuthGuard)
+  async deleteMurajaahUser(@Param('murajaahId') murajaahId: string, @getUser() user: userPayload) {
+    return this.murajaahService.deleteTilawahInMonth(murajaahId, user.sub);
   }
 }
