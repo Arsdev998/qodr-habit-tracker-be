@@ -16,6 +16,7 @@ import { ZiyadahModule } from './ziyadah/ziyadah.module';
 import { NotificationModule } from './notification/notification.module';
 import { EvaluationModule } from './evaluasi/evaluasi.module';
 import { EvaluationGeneralModule } from './evaluasigeneral/evaluation.genral.module';
+import { AdminDashboardModule } from './admindashboard/admin.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { EvaluationGeneralModule } from './evaluasigeneral/evaluation.genral.mod
     ZiyadahModule,
     EvaluationModule,
     EvaluationGeneralModule,
+    AdminDashboardModule
   ],
   controllers: [AppController],
   providers: [
