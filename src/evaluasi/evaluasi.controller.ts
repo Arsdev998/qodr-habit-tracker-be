@@ -12,8 +12,8 @@ export class EvaluationController {
     @Query('page') page: string, 
     @Query('limit') limit: string,
   ) {
-    const pageNumber = parseInt(page, 10) || 1; // Konversi ke integer dengan default 1
-    const limitNumber = parseInt(limit, 10) || 10; // Konversi ke integer dengan default 10
+    const pageNumber = parseInt(page, 10) || 1; 
+    const limitNumber = parseInt(limit, 10) || 10; 
     return await this.evaluationService.getEvaluations(pageNumber, limitNumber);
   }
 

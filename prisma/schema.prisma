@@ -13,7 +13,10 @@ model User {
   fullname    String       @db.VarChar(50)  @default("")
   email       String       @db.VarChar(50)  @default("")
   password    String
-  motivation  String       @default("")
+  major       String       @db.VarChar(50) @default("")
+  motivation  String       @db.VarChar(50) @default("")
+  numberPhone  String      @default("+62")
+  techStack    String      @default("")
   joinDate    String
   role        Role         @default(SANTRI)
   habit       Habit[]
@@ -23,6 +26,7 @@ model User {
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
   notifications Notification[]
+  evaluationGeneralSend  EvaluationGeneral[]
   createdAt   DateTime      @default(now())
   updateAt   DateTime       @updatedAt
 }
@@ -143,8 +147,18 @@ model Notification {
 
 model Evaluation {
   id          Int         @id @default(autoincrement())
-  about       String      @db.VarChar(100)
+  about       String      @db.VarChar(50)
   problem     String      @db.VarChar(500)
   identifier  String?      
+  createdAt   DateTime    @default(now())
+}
+
+model EvaluationGeneral {
+  id          Int         @id @default(autoincrement())
+  about       String      @db.VarChar(50)    
+  problem     String      @db.VarChar(500)
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  identifier  String?
   createdAt   DateTime    @default(now())
 }

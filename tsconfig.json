@@ -19,6 +19,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/evaluasigeneral/evaluation.genral.module.ts"],
   "exclude": ["node_modules", "dist"]
 }

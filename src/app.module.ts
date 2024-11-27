@@ -15,12 +15,13 @@ import { MurajaahModule } from './murajaah/murajaah.module';
 import { ZiyadahModule } from './ziyadah/ziyadah.module';
 import { NotificationModule } from './notification/notification.module';
 import { EvaluationModule } from './evaluasi/evaluasi.module';
+import { EvaluationGeneralModule } from './evaluasigeneral/evaluation.genral.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Menjadikan ConfigModule dapat diakses di seluruh aplikasi
-      envFilePath: '.env', // Menentukan lokasi file .env
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     PrismaModule,
     AuthModule,
@@ -31,7 +32,8 @@ import { EvaluationModule } from './evaluasi/evaluasi.module';
     MurajaahModule,
     NotificationModule,
     ZiyadahModule,
-    EvaluationModule
+    EvaluationModule,
+    EvaluationGeneralModule,
   ],
   controllers: [AppController],
   providers: [
@@ -44,6 +46,6 @@ import { EvaluationModule } from './evaluasi/evaluasi.module';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*'); 
+    consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }
