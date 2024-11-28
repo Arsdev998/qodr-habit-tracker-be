@@ -9,7 +9,7 @@ export class RolesMiddleware implements NestMiddleware {
       throw new ForbiddenException('User not logged in');
     }
 
-    const allowedRoles = [Role.SUPERADMIN, Role.ADMIN];
+    const allowedRoles = [Role.KESANTRIAN];
     if (!allowedRoles.includes(user.role)) {
       throw new ForbiddenException(
         'You do not have permission to access this resource',

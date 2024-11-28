@@ -25,15 +25,16 @@ model User {
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
-  notifications Notification[]
+  notifications Notification[] @relation("ReceivedNotifications")
+  notificationsSent Notification[] @relation("SentNotifications")
   evaluationGeneralSend  EvaluationGeneral[]
   createdAt   DateTime      @default(now())
   updateAt   DateTime       @updatedAt
 }
 
 enum Role {
-  SUPERADMIN
-  ADMIN
+  KESANTRIAN
+  PENGURUS
   SANTRI
 }
 
@@ -138,7 +139,9 @@ model Warning {
 model Notification {
   id          Int          @id @default(autoincrement())
   userId      Int
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User          @relation("ReceivedNotifications",fields: [userId], references: [id], onDelete: Cascade)
+  userSendId  Int
+  userSend    User          @relation("SentNotifications",fields: [userSendId], references: [id],onDelete: Cascade)
   message     String        @db.Text
   rawMessage  String?       @db.Text   
   status      Boolean       

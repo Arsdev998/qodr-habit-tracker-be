@@ -13,24 +13,27 @@ import { NotificationService } from './notification.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/guards/roles.decorator';
 import { Role } from 'src/auth/auth.types';
+import { getUser } from 'src/auth/decorators/get.user.decorator';
+import { userPayload } from 'src/types/userPayload';
 
 @Controller('notifications')
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.KESANTRIAN)
   @Post('/post/:userId')
   async sendNotification(
     @Param('userId') userId: string,
     @Body('message') message: string,
+    @getUser() user: userPayload,
   ) {
-    return this.notificationService.sendNotification(userId, message);
+    return this.notificationService.sendNotification(userId, message, user.sub);
   }
 
   @Post('/sendAll/sendToAllUsers')
-  async sendNotificationToAllUSer(@Body('message') message: string) {
-    return this.notificationService.sendNotificationToAllUsers(message);
+  async sendNotificationToAllUSer(@Body('message') message: string, @getUser() user: userPayload) {
+    return this.notificationService.sendNotificationToAllUsers(message,user.sub);
   }
 
   @UseGuards(JwtAuthGuard)

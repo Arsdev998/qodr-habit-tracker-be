@@ -30,14 +30,14 @@ export class MonthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.KESANTRIAN)
   @Post('/create')
   async createMonth(@Body() createMonthDto: CreateMonthDto) {
     return this.monthService.createMonth(createMonthDto); // Menambahkan bulan baru
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.KESANTRIAN)
   // delete month by id
   @Delete('/delete/:id')
   async deleteMonthById(@Param('id') id: string) {

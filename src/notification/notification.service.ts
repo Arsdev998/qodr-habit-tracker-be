@@ -24,7 +24,7 @@ export class NotificationService {
     private socketService: SocketService,
   ) {}
 
-  async sendNotification(userId: string, message: string) {
+  async sendNotification(userId: string, message: string, reqUserId:number) {
     try {
       // Save notification to the database
       const notification = await this.prisma.notification.create({
@@ -32,6 +32,7 @@ export class NotificationService {
           userId: parseInt(userId),
           message: message,
           status: false,
+          userSendId: reqUserId
         },
       });
       const notificationData: NotificationData = {
@@ -61,7 +62,7 @@ export class NotificationService {
     }
   }
 
-  async sendNotificationToAllUsers(message: string) {
+  async sendNotificationToAllUsers(message: string, userReqId:number) {
     try {
       const users = await this.prisma.user.findMany({
         where: {
@@ -86,6 +87,7 @@ export class NotificationService {
           userId: user.id,
           message: message,
           status: false,
+          userSendId: userReqId
         })),
       });
 

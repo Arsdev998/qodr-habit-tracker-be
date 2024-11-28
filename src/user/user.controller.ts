@@ -21,14 +21,14 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.KESANTRIAN)
   @Get('getAll')
   async getAllUsers() {
     return this.userService.getAllUsers();
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(Role.KESANTRIAN)
   @Post('create')
   async crateUser(@Body() data: createUSerDto) {
     return this.userService.createUser(data);
@@ -65,7 +65,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Roles(Role.SANTRI, Role.ADMIN, Role.SUPERADMIN)
+  @Roles(Role.KESANTRIAN)
   @Delete('/delete/:userId')
   async deletedUSerByAdmin(@Param('userId') userId: string) {
     return this.userService.deletedUser(userId);

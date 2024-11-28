@@ -18,7 +18,6 @@ export class createUSerDto {
     @IsString()
     email:string
 
-    @IsNotEmpty()
     @IsString()
     motivation:string
 
@@ -26,6 +25,17 @@ export class createUSerDto {
     @IsNotEmpty()
     @IsString()
     joinDate:string
+
+    @IsNotEmpty()
+    @IsString()
+    major: string
+
+    @IsString()
+    numberPhone:string
+
+
+    @IsString()
+    techStack:string
 
     @IsString()
     @IsNotEmpty()

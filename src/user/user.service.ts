@@ -78,6 +78,9 @@ export class UserService {
           email: data.email,
           joinDate: data.joinDate,
           motivation: '',
+          major: data.major,
+          numberPhone: data.numberPhone,
+          techStack:data.techStack,
           role: data.role,
         },
       });

@@ -34,6 +34,8 @@ export class EvaluationGeneralController {
       limitNumber,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
   @Post('post')
   async postEvaluationGeneral(@Body() data: EvaluationGeneralDto) {
     return this.evaluarionGeneralService.createEvalutaion(data);
