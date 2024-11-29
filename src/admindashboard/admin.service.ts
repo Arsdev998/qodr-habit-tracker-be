@@ -21,15 +21,6 @@ export class AdminServices {
     });
     const monthCount = await this.prisma.month.count();
 
-    const habitStatusUpdateCount = await this.prisma.habitStatus.count({
-      where: {
-        updateAt: {
-          gte: yesterday,
-          lte: new Date(),
-        },
-      },
-    });
-
     const evaluasiTodayCount = await this.prisma.evaluation.count({
       where: {
         createdAt: {
@@ -38,98 +29,91 @@ export class AdminServices {
         },
       },
     });
-    const murajaahCount = await this.prisma.murajaah.count({
-      where: {
-        createdAt: {
-          gte: yesterday, // Greater than or equal to start of today
-          lt: new Date(), // Less than current time
-        },
-      },
-    });
-
-    const ziyadahCount = await this.prisma.ziyadah.count({
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: new Date(),
-        },
-      },
-    });
-
-    const tilawahCount = await this.prisma.tilawah.count({
-      where: {
-        createdAt: {
-          gte: yesterday,
-          lt: new Date(),
-        },
-      },
-    });
     return {
       userCount: usercount,
       habitCount: habitCount,
       monthCount: monthCount,
       evaluationCount: evaluasiTodayCount,
-      habitStatusCount: habitStatusUpdateCount,
-      murajaahCount: murajaahCount,
-      ziyadahCount: ziyadahCount,
-      tilawahCount: tilawahCount,
     };
   }
 
-//   GET HABIT STATUS TRAFIC
   async getTraficHabitStatusMonthData() {
-    const habitStatusData = await this.prisma.habitStatus.groupBy({
-      by: ['createdAt', 'status'],
-      _count: {
+    // Get the start of the current month
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const habitStatusData = await this.prisma.habitStatus.findMany({
+      where: {
+        createdAt: {
+          gte: startOfMonth,
+        },
+      },
+      select: {
+        createdAt: true,
         status: true,
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: 1,
     });
 
-    if (habitStatusData.length === 0) {
-      return [];
-    }
+    // Group data by week
+    const weeklyAggregation = this.aggregateByWeeks(habitStatusData);
 
-    const totalData = {
-      date: habitStatusData[0].createdAt.toISOString().split('T')[0],
-      completed: habitStatusData
-        .filter((item) => item.status === true)
-        .reduce((sum, item) => sum + item._count.status, 0),
-      pending: habitStatusData
-        .filter((item) => item.status === false)
-        .reduce((sum, item) => sum + item._count.status, 0),
-    };
-
-    return this.splitDataIntoWeeks([totalData]);
+    return weeklyAggregation;
   }
 
-  private splitDataIntoWeeks(data: any[]) {
-    const weeklyData = [];
+  private aggregateByWeeks(data: Array<{ createdAt: Date; status: boolean }>) {
+    // Create 4 weeks from the start of the month
+    const weeks = [
+      {
+        start: this.getWeekStart(0),
+        end: this.getWeekStart(1),
+        completed: 0,
+        pending: 0,
+      },
+      {
+        start: this.getWeekStart(1),
+        end: this.getWeekStart(2),
+        completed: 0,
+        pending: 0,
+      },
+      {
+        start: this.getWeekStart(2),
+        end: this.getWeekStart(3),
+        completed: 0,
+        pending: 0,
+      },
+      {
+        start: this.getWeekStart(3),
+        end: this.getWeekStart(4),
+        completed: 0,
+        pending: 0,
+      },
+    ];
 
-    const baseDate = new Date(data[0].date);
-    const totalCompleted = data[0].completed;
-    const totalPending = data[0].pending;
+    // Aggregate data into weeks
+    data.forEach((entry) => {
+      const weekIndex = weeks.findIndex(
+        (week) => entry.createdAt >= week.start && entry.createdAt < week.end,
+      );
 
-    const completedPerWeek = Math.floor(totalCompleted / 4);
-    const pendingPerWeek = Math.floor(totalPending / 4);
+      if (weekIndex !== -1) {
+        entry.status
+          ? weeks[weekIndex].completed++
+          : weeks[weekIndex].pending++;
+      }
+    });
 
-    for (let i = 0; i < 4; i++) {
-      const weekDate = new Date(baseDate);
-      weekDate.setDate(baseDate.getDate() + i * 7);
+    // Transform to required format
+    return weeks.map((week, index) => ({
+      date: week.start.toISOString().split('T')[0],
+      completed: week.completed,
+      pending: week.pending,
+    }));
+  }
 
-      weeklyData.push({
-        date: weekDate.toISOString().split('T')[0],
-        completed: completedPerWeek,
-        pending: pendingPerWeek,
-      });
-    }
-
-    weeklyData[3].completed += totalCompleted % 4;
-    weeklyData[3].pending += totalPending % 4;
-
-    return weeklyData;
+  private getWeekStart(weekOffset: number): Date {
+    const date = new Date();
+    date.setDate(1 + weekOffset * 7);
+    return date;
   }
 }

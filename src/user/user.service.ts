@@ -35,7 +35,7 @@ export class UserService {
         fullname: true,
         email: true,
         techStack: true,
-        numberPhone:true,
+        numberPhone: true,
         major: true,
         joinDate: true,
         motivation: true,
@@ -80,7 +80,7 @@ export class UserService {
           motivation: '',
           major: data.major,
           numberPhone: data.numberPhone,
-          techStack:data.techStack,
+          techStack: data.techStack,
           role: data.role,
         },
       });
@@ -151,13 +151,13 @@ export class UserService {
   }
 
   async editUser(userId: string, data: createUSerDto, reqUserId: number) {
-    const { name, fullname, email, motivation } = data;
+    const { name, fullname, email, motivation, numberPhone, techStack } = data;
     const user = await this.getUserById(userId);
 
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    if(user.id !== reqUserId){
+    if (user.id !== reqUserId) {
       throw new UnauthorizedException('Unauthorized');
     }
 
@@ -169,6 +169,8 @@ export class UserService {
         name: name,
         fullname: fullname,
         email: email,
+        numberPhone: numberPhone,
+        techStack: techStack,
         motivation: motivation,
       },
     });
@@ -189,7 +191,11 @@ export class UserService {
     return { message: 'User Deleted Success' };
   }
 
-  async updatePassword(userId: string, data: UpdatePasswordDto, reqUSerId: number) {
+  async updatePassword(
+    userId: string,
+    data: UpdatePasswordDto,
+    reqUSerId: number,
+  ) {
     const { oldPassword, newPassword, confirmPassword } = data;
     const user = await this.prisma.user.findUnique({
       where: {
@@ -199,7 +205,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException('User Not Found');
     }
-    if(user.id !== reqUSerId){
+    if (user.id !== reqUSerId) {
       throw new UnauthorizedException('Unauthorized');
     }
     if (!user.password || !oldPassword || !newPassword || !confirmPassword) {
