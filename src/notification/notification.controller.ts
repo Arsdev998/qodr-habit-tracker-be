@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Put,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
@@ -31,9 +33,17 @@ export class NotificationController {
     return this.notificationService.sendNotification(userId, message, user.sub);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.KESANTRIAN)
   @Post('/sendAll/sendToAllUsers')
-  async sendNotificationToAllUSer(@Body('message') message: string, @getUser() user: userPayload) {
-    return this.notificationService.sendNotificationToAllUsers(message,user.sub);
+  async sendNotificationToAllUSer(
+    @Body('message') message: string,
+    @getUser() user: userPayload,
+  ) {
+    return this.notificationService.sendNotificationToAllUsers(
+      message,
+      user.sub,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -61,8 +71,25 @@ export class NotificationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('deletemany/:userId')
+  @Delete('/deletemany/:userId')
   async deleteNotificationMany(@Param('userId') userId: string) {
     return this.notificationService.deleteManyNotification(userId);
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/get/all')
+  async getNotificationsAndEvaluations(
+    @getUser() user: userPayload,
+    @Query('page') page: string,
+    @Query('limit') limit: string ,
+  ) {
+     const pageNumber = parseInt(page, 10) || 1;
+     const limitNumber = parseInt(limit, 10) || 10;
+    return this.notificationService.getNotificationsAndEvaluations(
+      user.sub,
+      pageNumber,
+      limitNumber,
+    );
   }
 }

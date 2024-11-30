@@ -25,9 +25,11 @@ model User {
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
+  jurnal      Jurnal[]
   notifications Notification[] @relation("ReceivedNotifications")
   notificationsSent Notification[] @relation("SentNotifications")
   evaluationGeneralSend  EvaluationGeneral[]
+  evaluationsRead        EvaluationRead[]
   createdAt   DateTime      @default(now())
   updateAt   DateTime       @updatedAt
 }
@@ -48,6 +50,7 @@ model Month {
   murajaah    Murajaah[]
   ziyadah     Ziyadah[]
   tilawah     Tilawah[]
+  jurnal      Jurnal[]
   createdAt   DateTime      @default(now())
   updateAt   DateTime       @updatedAt
 }
@@ -127,6 +130,19 @@ model Tilawah {
   updateAt   DateTime       @updatedAt
 }
 
+model Jurnal {
+  id         Int          @id  @default(autoincrement())
+  day        String       @db.VarChar(10)
+  date       DateTime     
+  userId     Int
+  user       User         @relation(fields: [userId], references: [id])
+  monthId    Int
+  month      Month        @relation(fields: [monthId], references: [id])
+  activity   String       @db.VarChar(500)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
 model Warning {
   id          Int          @id @default(autoincrement())
   message     String       
@@ -160,8 +176,20 @@ model EvaluationGeneral {
   id          Int         @id @default(autoincrement())
   about       String      @db.VarChar(50)    
   problem     String      @db.VarChar(500)
-  userId      Int
+  userId      Int         // User yang membuat evaluasi
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readByUsers EvaluationRead[]
   identifier  String?
   createdAt   DateTime    @default(now())
+}
+
+model EvaluationRead {
+  id                 Int               @id @default(autoincrement())
+  evaluationId       Int
+  evaluation        EvaluationGeneral  @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  userId            Int
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt            DateTime           @default(now())
+
+  @@unique([evaluationId, userId]) // Memastikan satu user hanya bisa membaca satu kali untuk satu evaluasi
 }

@@ -24,7 +24,7 @@ export class NotificationService {
     private socketService: SocketService,
   ) {}
 
-  async sendNotification(userId: string, message: string, reqUserId:number) {
+  async sendNotification(userId: string, message: string, reqUserId: number) {
     try {
       // Save notification to the database
       const notification = await this.prisma.notification.create({
@@ -32,7 +32,7 @@ export class NotificationService {
           userId: parseInt(userId),
           message: message,
           status: false,
-          userSendId: reqUserId
+          userSendId: reqUserId,
         },
       });
       const notificationData: NotificationData = {
@@ -62,7 +62,7 @@ export class NotificationService {
     }
   }
 
-  async sendNotificationToAllUsers(message: string, userReqId:number) {
+  async sendNotificationToAllUsers(message: string, userReqId: number) {
     try {
       const users = await this.prisma.user.findMany({
         where: {
@@ -87,7 +87,7 @@ export class NotificationService {
           userId: user.id,
           message: message,
           status: false,
-          userSendId: userReqId
+          userSendId: userReqId,
         })),
       });
 
@@ -100,7 +100,7 @@ export class NotificationService {
           },
         },
         include: {
-          user: true, 
+          user: true,
         },
       });
 
@@ -197,6 +197,7 @@ export class NotificationService {
 
   async maskReadMany(userId: string) {
     try {
+      // Perbarui status notifikasi menjadi terbaca
       await this.prisma.notification.updateMany({
         where: {
           userId: parseInt(userId),
@@ -206,7 +207,28 @@ export class NotificationService {
           status: true,
         },
       });
-      return { message: 'All notification mask read' };
+
+      // Ambil semua evaluationId yang relevan
+      const evaluations = await this.prisma.evaluationGeneral.findMany({
+        where: {
+          /* Tambahkan filter sesuai kebutuhan */
+        },
+        select: { id: true }, // Hanya ambil ID evaluasi
+      });
+
+      // Buat array data untuk createMany
+      const evaluationReadData = evaluations.map((evaluation) => ({
+        evaluationId: evaluation.id,
+        userId: parseInt(userId),
+      }));
+
+      // Masukkan data ke dalam EvaluationRead
+      await this.prisma.evaluationRead.createMany({
+        data: evaluationReadData,
+        skipDuplicates: true, // Hindari error jika data duplikat
+      });
+
+      return { message: 'All notifications marked as read' };
     } catch (error) {
       throw error;
     }
@@ -287,5 +309,81 @@ export class NotificationService {
     } catch (error) {
       throw new InternalServerErrorException('Internal server error');
     }
+  }
+
+  async getNotificationsAndEvaluations(
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const offset = (page - 1) * limit;
+
+    const [notifications, evaluations] = await Promise.all([
+      this.prisma.notification.findMany({
+        where: { userId: userId },
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+        include: {
+          userSend: {
+            select: {
+              id: true,
+              fullname: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      }),
+      this.prisma.evaluationGeneral.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullname: true,
+              email: true,
+              role: true,
+            },
+          },
+          readByUsers: {
+            select: {
+              id: true,
+              userId: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    // Menghitung total items
+    const [notificationsCount, evaluationsCount] = await Promise.all([
+      this.prisma.notification.count({ where: { userId: userId } }),
+      this.prisma.evaluationGeneral.count(),
+    ]);
+
+    // Menggabungkan dan mensortir berdasarkan createdAt
+    const combinedItems = [...notifications, ...evaluations]
+      .map((item) => ({
+        ...item,
+        type: item.hasOwnProperty('message') ? 'notification' : 'evaluation',
+      }))
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+      .slice(0, limit);
+
+    return {
+      data: combinedItems,
+      meta: {
+        page,
+        limit,
+        total: notificationsCount + evaluationsCount,
+        totalPages: Math.ceil((notificationsCount + evaluationsCount) / limit),
+      },
+    };
   }
 }

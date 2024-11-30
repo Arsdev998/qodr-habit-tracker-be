@@ -27,8 +27,8 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Roles(Role.KESANTRIAN)
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.KESANTRIAN)
   @Post('create')
   async crateUser(@Body() data: createUSerDto) {
     return this.userService.createUser(data);
