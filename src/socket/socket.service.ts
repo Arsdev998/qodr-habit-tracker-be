@@ -11,7 +11,7 @@ export class SocketService {
       console.error('NotificationGateway is not initialized!');
       return;
     }
-
+    console.log('SocketService: Attempting to send notification...', notification);
     try {
       await this.socketGateway.sendNotificationToUser(
         userId,

@@ -147,7 +147,6 @@ export class SocketGateWay
       }
       const roomName = `user-${userId}`;
       const sockets = await this.server.in(roomName).fetchSockets();
-
       this.logger.debug(
         `Found ${sockets.length} socket(s) in room ${roomName}`,
       );

@@ -83,4 +83,14 @@ export class MonthController {
   ) {
     return this.monthService.getMonthByZiyadah(monthId, userId);
   }
+
+  //get month by JURNAL
+  @UseGuards(JwtAuthGuard)
+  @Get(':monthId/monthWithJurnal/:userId')
+  async getMonthWithJurnal(
+    @Param('monthId') monthId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.monthService.getMonthByJurnal(monthId, userId);
+  }
 }

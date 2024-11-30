@@ -132,7 +132,6 @@ model Tilawah {
 
 model Jurnal {
   id         Int          @id  @default(autoincrement())
-  day        String       @db.VarChar(10)
   date       DateTime     
   userId     Int
   user       User         @relation(fields: [userId], references: [id])

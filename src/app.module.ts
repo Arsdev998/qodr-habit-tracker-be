@@ -17,6 +17,7 @@ import { NotificationModule } from './notification/notification.module';
 import { EvaluationModule } from './evaluasi/evaluasi.module';
 import { EvaluationGeneralModule } from './evaluasigeneral/evaluation.genral.module';
 import { AdminDashboardModule } from './admindashboard/admin.module';
+import { JurnalModule } from './jurnal/jurnal.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AdminDashboardModule } from './admindashboard/admin.module';
     MurajaahModule,
     NotificationModule,
     ZiyadahModule,
+    JurnalModule,
     EvaluationModule,
     EvaluationGeneralModule,
     AdminDashboardModule

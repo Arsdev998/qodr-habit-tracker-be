@@ -252,4 +252,24 @@ export class MonthService {
     }
     return monthZiyadah;
   }
+  // GET MONTH JURNAL
+  async getMonthByJurnal(monthId: string, userId: string) {
+    const monthJurnal = this.prisma.month.findUnique({
+      where: {
+        id: parseInt(monthId),
+      },
+      include: {
+        jurnal: {
+          where: {
+            userId: parseInt(userId),
+          },
+        },
+      },
+    });
+
+    if (!monthJurnal) {
+      throw new NotFoundException('NotFound');
+    }
+    return monthJurnal;
+  }
 }

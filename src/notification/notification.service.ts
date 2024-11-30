@@ -236,12 +236,24 @@ export class NotificationService {
 
   async getUnreadNotifications(userId: string) {
     try {
-      return await this.prisma.notification.count({
+      const notifCount = await this.prisma.notification.count({
         where: {
           userId: parseInt(userId),
           status: false,
         },
       });
+
+      const evaluationGeneralCount = await this.prisma.evaluationGeneral.count({
+        where: {
+          readByUsers:{
+            none: {
+              userId: parseInt(userId)
+            }
+          }
+      }});
+      const result = notifCount + evaluationGeneralCount;
+
+      return result;
     } catch (error) {
       this.logger.error(
         `Error counting unread notifications for user ${userId}:`,
