@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma_config/prisma.service';
-import { SocketService } from './socket.service';
+import { SocketService } from '../socket/socket.service';
 
 interface NotificationData {
   id: number;
@@ -225,7 +225,7 @@ export class NotificationService {
       // Masukkan data ke dalam EvaluationRead
       await this.prisma.evaluationRead.createMany({
         data: evaluationReadData,
-        skipDuplicates: true, // Hindari error jika data duplikat
+        skipDuplicates: true,
       });
 
       return { message: 'All notifications marked as read' };

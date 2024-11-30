@@ -1,14 +1,26 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { EvaluationGeneralDto } from './evaluation.general.dto';
 import { PrismaService } from 'src/prisma_config/prisma.service';
+import { SocketService } from 'src/socket/socket.service';
+
+interface EvaluationGeneralData {
+  userId: number;
+  about: string;
+  problem: string;
+  createdAt: Date;
+}
 
 @Injectable()
 export class EvaluationGeneralService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly socketService : SocketService,
+  ) {}
 
   async getEvaluationGeneral(page: number, limit: number) {
     const skip = (page - 1) * limit;
@@ -43,36 +55,56 @@ export class EvaluationGeneralService {
     };
   }
   async createEvalutaion(data: EvaluationGeneralDto) {
-    const { about, problem, userId } = data;
-    if (!about || !problem || !userId) {
-      throw new BadRequestException('Field Missing');
-    }
-    const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const existingEvaluation = await this.prisma.evaluationGeneral.findFirst({
-      where: {
-        userId: parseInt(userId),
-        createdAt: {
-          gte: oneDayAgo,
+    try {
+      const { about, problem, userId } = data;
+      if (!about || !problem || !userId) {
+        throw new BadRequestException('Field Missing');
+      }
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const existingEvaluation = await this.prisma.evaluationGeneral.findFirst({
+        where: {
+          userId: parseInt(userId),
+          createdAt: {
+            gte: oneDayAgo,
+          },
         },
-      },
-    });
-    if (existingEvaluation) {
-      const nextAllowed = new Date(
-        existingEvaluation.createdAt.getTime() + 24 * 60 * 60 * 1000,
-      );
-      throw new BadRequestException(
-        `Kamu baru bisa mengirim lagi pada ${nextAllowed}.`,
-      );
-    }
-    const createEvaluation = await this.prisma.evaluationGeneral.create({
-      data: {
+      });
+      if (existingEvaluation) {
+        const nextAllowed = new Date(
+          existingEvaluation.createdAt.getTime() + 24 * 60 * 60 * 1000,
+        );
+        throw new BadRequestException(
+          `Kamu baru bisa mengirim lagi pada ${nextAllowed}.`,
+        );
+      }
+      const createEvaluation = await this.prisma.evaluationGeneral.create({
+        data: {
+          about: about,
+          problem: problem,
+          userId: parseInt(userId),
+        },
+      });
+      const evaluationGeneralData: EvaluationGeneralData = {
+        userId: parseInt(userId),
         about: about,
         problem: problem,
-        userId: parseInt(userId),
-      },
-    });
-    return { message: 'Create Evaluation Success', createEvaluation };
+        createdAt: now,
+      };
+      // Send notification via WebSocket with retry mechanism
+      try {
+        await this.socketService.sendToUser(userId, evaluationGeneralData);
+      } catch (socketError) {
+        console.log(
+          `Failed to send notification via WebSocket to user ${userId}: ${socketError.message}`,
+          socketError.stack,
+        );
+        // Note: We don't throw here as the notification is already saved in DB
+      }
+      return { message: 'Create Evaluation Success', createEvaluation };
+    } catch (error) {
+      throw new InternalServerErrorException('Internal server error');
+    }
   }
 
   async updateEvaluation(

@@ -19,13 +19,13 @@ import { Injectable, Logger } from '@nestjs/common';
   namespace: '/notification',
   transport: ['polling', 'websocket'],
 })
-export class NotificationGateway
+export class SocketGateWay
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
 
-  private readonly logger = new Logger(NotificationGateway.name);
+  private readonly logger = new Logger(SocketGateWay.name);
   private userSocketMap: Map<string, Set<string>> = new Map();
 
   afterInit(server: Server) {

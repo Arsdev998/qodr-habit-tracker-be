@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { NotificationGateway } from './notification.gateway';
+import { SocketGateWay } from './socket.gateway';
 
 @Injectable()
 export class SocketService {
-  constructor(private readonly notificationGateway: NotificationGateway) {}
+  constructor(private readonly socketGateway: SocketGateWay) {}
 
   async sendToUser(userId: string, notification: any) {
     // Ensure the gateway is available
-    if (!this.notificationGateway) {
+    if (!this.socketGateway) {
       console.error('NotificationGateway is not initialized!');
       return;
     }
 
     try {
-      await this.notificationGateway.sendNotificationToUser(
+      await this.socketGateway.sendNotificationToUser(
         userId,
         notification,
       );
