@@ -17,7 +17,6 @@ import { Injectable, Logger } from '@nestjs/common';
     credentials: true,
   },
   namespace: '/notification',
-  transport: ['polling', 'websocket'],
 })
 export class SocketGateWay
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
