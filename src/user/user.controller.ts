@@ -46,12 +46,21 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Patch('/update/:userId')
-  async editUser(
+  async updatetUser(
     @Param('userId') userId: string,
     @Body() data: createUSerDto,
     @getUser() user: userPayload,
   ) {
     return this.userService.editUser(userId, data, user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/edit/:userId')
+  async editUserByAdmin(
+    @Param('userId') userId: string,
+    @Body() data: createUSerDto,
+  ) {
+    return this.userService.editUserByAdmin(userId, data);
   }
 
   @UseGuards(JwtAuthGuard)

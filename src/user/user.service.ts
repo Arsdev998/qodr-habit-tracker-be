@@ -134,6 +134,8 @@ export class UserService {
         motivation: true,
         joinDate: true,
         role: true,
+        numberPhone: true,
+        techStack: true,
         createdAt: true,
         updateAt: true,
       },
@@ -172,6 +174,31 @@ export class UserService {
         numberPhone: numberPhone,
         techStack: techStack,
         motivation: motivation,
+      },
+    });
+    return { message: 'User Updated Successfully', updated };
+  }
+
+  async editUserByAdmin(userId: string, data: createUSerDto) {
+    const { name, fullname, email, motivation, numberPhone, techStack , password} = data;
+    const user = await this.getUserById(userId);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    if (!user) {
+      throw new NotFoundException('User Not Found');
+    }
+    const updated = await this.prisma.user.update({
+      where: {
+        id: parseInt(userId),
+      },
+      data: {
+        name: name,
+        fullname: fullname,
+        email: email,
+        numberPhone: numberPhone,
+        techStack: techStack,
+        motivation: motivation,
+        password: hashedPassword
       },
     });
     return { message: 'User Updated Successfully', updated };
